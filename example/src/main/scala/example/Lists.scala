@@ -1,6 +1,7 @@
 package example
 
 import common._
+import scala.annotation.tailrec
 
 object Lists {
   /**
@@ -24,6 +25,7 @@ object Lists {
    * @return The sum of all elements in `xs`
    */
   def sum(xs: List[Int]): Int = {
+    @tailrec
     def sumHelper(actualSum: Int, xs: List[Int]): Int = {
       if (xs.isEmpty) actualSum
       else sumHelper(actualSum + xs.head, xs.tail)
@@ -46,6 +48,7 @@ object Lists {
    * @throws java.util.NoSuchElementException if `xs` is an empty list
    */
   def max(xs: List[Int]): Int = {
+    @tailrec
     def maxHelper(actualMax: Int, xs: List[Int]): Int = {
       if (xs.isEmpty) actualMax
       else {
