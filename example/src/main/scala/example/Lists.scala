@@ -28,8 +28,7 @@ object Lists {
       if (xs.isEmpty) actualSum
       else sumHelper(actualSum + xs.head, xs.tail)
     } // sumHelper
-    if (xs == null) throw new java.util.NoSuchElementException
-    else if (xs.isEmpty) 0  
+    if (xs.isEmpty) 0  
     else sumHelper(xs.head, xs.tail)
   }
 
@@ -54,7 +53,7 @@ object Lists {
         else maxHelper(actualMax, xs.tail)
       }
     } // maxHelper
-    if (xs == null || xs.isEmpty) throw new java.util.NoSuchElementException
+    if (xs.isEmpty) throw new java.util.NoSuchElementException
     maxHelper(xs.head, xs.tail)
   }
 }

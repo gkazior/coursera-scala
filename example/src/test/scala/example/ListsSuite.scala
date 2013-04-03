@@ -98,13 +98,8 @@ class ListsSuite extends FunSuite {
    */
   import Lists._
 
-  test("sum of null") {
-    intercept[NoSuchElementException] {
-      // Why not NullPointerException - seems the specification is not complete here
-      sum(null)
-    }
-  }
   test("sum of empty list") {
+      // well possible sum of empty list is 0 but SQL (in Oracle at least) tells null, count is other story - for empty list the 0 value is ok  
       assert(sum(List()) === 0)
   }
   test("sum of a few numbers") {
@@ -119,17 +114,8 @@ class ListsSuite extends FunSuite {
   test("max of a few numbers") {
     assert(max(List(3, 7, 2)) === 7)
   }
-
-  test("max of null") {
-    intercept[NoSuchElementException] {
-      // Why not NullPointerException - seems the specification is not complete here
-      max(null)
-    }
-  }
-
   test("max throws an exception for empty list") {
     intercept[NoSuchElementException] {
-      // well possible sum of empty list is 0 but SQL tells null, count is other story - for empty list the 0 value is ok  
       max(List())
     }
   }
