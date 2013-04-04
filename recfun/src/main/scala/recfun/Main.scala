@@ -1,9 +1,7 @@
 package recfun
 
 import scala.annotation.tailrec
-
 import RecursiveUtils.isListOrderedStrong
-
 
 object Main {
   def main(args: Array[String]) {
@@ -110,30 +108,31 @@ object Main {
       isListOrderedStrong(0, coins) // 0 cannot be in the list!
     } // coinsAreValid
 
-    //@tailrec - cannot easily make it tail recursive because of case 1  
+    //@tailrec //- cannot easily make it tail recursive because of case 1  
     def countChangeHelper(moneyLeft: Int, coins: List[Int], countSoFar: Int): Int = {
       coins match {
         case Nil => countSoFar
         case head :: tail =>
-          (moneyLeft - head).signum match {
-            case 1 => // Sth to change
-              countChangeHelper(moneyLeft - head, coins, countSoFar) +
-                countChangeHelper(moneyLeft, tail, 0)
-            case 0 => // nothing left to change
-              countChangeHelper(moneyLeft, tail, countSoFar + 1)
-            case _ => // tried to much
-              countChangeHelper(moneyLeft, tail, countSoFar)
-          }
+          countChangeHelper(moneyLeft //
+          , tail //
+          , (moneyLeft - head).signum match {
+            case 1 => countChangeHelper(moneyLeft - head, coins, countSoFar) // Sth to change
+            case 0 => countSoFar + 1 // nothing left to change
+            case _ => countSoFar // tried to much
+          })
       }
     } // countChangeHelper
 
+    // Some simple profiling
     //countChangeHead(money, coins, 0)                                        // 8.374 sec
     //countChangeHead(money, coins.sortWith(_ > _), 0)                        // 3.832 sec
     //if (money <= 0) 0 else countChangeHead(money, coins.sortWith(_ > _), 0) // 3.790 sec
     // 2.834 sec after removing println
     // 2.665 sec after removing ret   
     // 0.054 sec removing all prints
+    
     val sortedDescendingCoins = coins.distinct.sortWith(_ > _)
+    
     if (!coinsAreValid(sortedDescendingCoins.reverse)) throw new java.lang.IllegalArgumentException
 
     if (money <= 0) 0
