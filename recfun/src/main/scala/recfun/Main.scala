@@ -1,6 +1,7 @@
 package recfun
 
 import scala.annotation.tailrec
+import Math._
 
 object Main {
   def main(args: Array[String]) {
@@ -23,9 +24,14 @@ object Main {
    *
    * Columns and rows indexed from 0
    * Returns the value from the pascal triangle indexed by (c,r).
-   * Ex. pascal(1,2) gets the item from the first column and second row (counted from 0)
+   * Ex. pascal(1,2) gets the item from the first column and second row (counted from 0). The item value is 2.
    *
    * Function is not optimized. Stack usage is not optimized.
+   *
+   * @param c column
+   * @param r row
+   *
+   * @return the value from the pascal triangle from row r and column c
    */
   def pascal(c: Int, r: Int): Int = {
     if (c < 0 || r < 0) throw new java.util.NoSuchElementException
@@ -33,6 +39,7 @@ object Main {
     if (c == 0 || c == r) 1
     else pascal(c - 1, r - 1) + pascal(c, r - 1)
   }
+  // TODO: How to memoize the pascal fn - quite easy to write/read a global table(c,r)
 
   @tailrec
   private def balanceHelper(currentlyOpenNo: Int, chars: List[Char]): Boolean = {
@@ -58,7 +65,13 @@ object Main {
   /**
    * Exercise 2
    *
-   * See the test suite for
+   * Check if the list contains balanced parenthesis.
+   * The order is important - first `open` than matching `close`
+   * Never `close` when all opened are already balanced
+   *
+   * See the test suite for the specification
+   * @param chars list of chars to check the balance
+   * @return true when the chars has balanced parenthesis and false otherwise
    *
    */
   def balance(chars: List[Char]): Boolean = {
@@ -74,8 +87,47 @@ object Main {
 
   /**
    * Exercise 3
+   *
+   * Computes the number of possible changes
+   *
+   * @param money money to change
+   * @coins coins amounts, the same amount may be chosen several times
+   * @return number of possible changes
+   * 
+   * @throws NoSuchElementException
    */
   def countChange(money: Int, coins: List[Int]): Int = {
-    0
-  }
+    //@tailrec - cannot easily make it tail recursive because of case 1  
+    def countChangeHelper(moneyLeft: Int, coins: List[Int], countSoFar: Int): Int = {
+      coins match {
+        case Nil => countSoFar
+        case head :: tail =>
+          (moneyLeft - head).signum match {
+            case 1 => // Sth to change
+              countChangeHelper(moneyLeft - head, coins, countSoFar) +
+              countChangeHelper(moneyLeft, tail, 0) 
+            case 0 => // nothing left to change
+              countChangeHelper(moneyLeft, tail, countSoFar + 1) 
+            case _ => // tried to much
+              countChangeHelper(moneyLeft, tail, countSoFar) 
+          }
+      }
+    }
+    def coinsAreInvalid(coins: List[Int]): Boolean = {
+      // TODO: false when the list is not distinct - leads to not intuitive behavior
+      // TODO: maybe false when the list is not sorted. Sometimes when the list is sorted we sort, but do not need to
+      true
+    }
+    //countChangeHead(money, coins, 0)                                        // 8.374 sec
+    //countChangeHead(money, coins.sortWith(_ > _), 0)                        // 3.832 sec
+    //if (money <= 0) 0 else countChangeHead(money, coins.sortWith(_ > _), 0) // 3.790 sec
+    // 2.834 sec after removing println
+    // 2.665 sec after removing ret   
+    // 0.054 sec removing all prints
+    val sortedCoins = coins.distinct.sortWith(_ > _)
+    if (coinsAreInvalid(sortedCoins)) throw new java.lang.IllegalArgumentException
+    
+    if (money <= 0) 0
+    else countChangeHelper(money, sortedCoins, 0) // 3.832 sec
+  }                                               
 }

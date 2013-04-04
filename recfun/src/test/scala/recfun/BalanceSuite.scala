@@ -15,10 +15,10 @@ class BalanceSuite extends FunSuite {
   }
   def testHelper(expectedResult: Boolean, arg: String): Unit = {
     // Very funny way to make the unique name for testcase
-    // TODO: read scala-test guide
+    // Seems that scala is perfectly fine but JUnitRunner/eclipse do not like strange names
     // Names proposed as embedded names are not nice too ex. first name is cut just after first space
-    testBalanceFn("balance : " + arg.hashCode, balance, arg, expectedResult)
-    testBalanceFn("balance2: " + arg.hashCode, balance2, arg, expectedResult)
+    testBalanceFn("balance : [" + arg.hashCode + "] " + arg, balance, arg, expectedResult)
+    testBalanceFn("balance2: [" + arg.hashCode + "] " + arg, balance2, arg, expectedResult)
   }
   // I do not change embedded tests - in fact I am curious of the mechanics behind assignment
   test("balance: '(if (zero? x) max (/ 1 x))' is balanced") {
