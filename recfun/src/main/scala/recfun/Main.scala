@@ -51,7 +51,8 @@ object Main {
       case _ => balanceHelper(currentlyOpenNo, chars.tail)
     }
   }
-  @tailrec
+  @tailrec // 
+  // redundant function
   private def balance2Helper(currentlyOpenNo: Int, chars: List[Char]): Boolean = {
     if (currentlyOpenNo < 0) false
     else chars match {
@@ -80,7 +81,9 @@ object Main {
 
   /* 
    * Should be the same as balance2. I only use pattern matching which is great in scala.
+   * 
    * */
+  // redundant function
   def balance2(chars: List[Char]): Boolean = {
     balance2Helper(0, chars);
   }
@@ -126,7 +129,6 @@ object Main {
     def coinsAreValid(coins: List[Int]): Boolean = {
       // false when the list is not distinct - leads to not intuitive behavior
       // maybe false when the list is not sorted. Sometimes when the list is sorted we sort, but do not need to
-      // ex:
       isListOrderedStrong(0, coins) // 0 cannot be in the list!
     } // coinsAreValid
 

@@ -9,24 +9,28 @@ import org.scalatest.junit.JUnitRunner
 class CountChangeSuite extends FunSuite {
   import Main._
   def assertCountChange(ways: Int, givenChange: Int, coins: List[Int]) {
+    // can add generic test which test each list with:
+    // List+List (duplicates does not matter)
+    // List.reversed (order does not matter)
+
     assert(countChange(givenChange, coins) === ways)
   }
-  
+
   test("isListOrderedStrong") {
-    assert(isListOrderedStrong(0, List()))    
-    assert(isListOrderedStrong(-10, List()))    
-    assert(isListOrderedStrong(-10, List(-9)))    
-    assert(isListOrderedStrong(0, List(1,2)))    
-    
-    assert(isListOrderedStrong(-9, List(-9)) === false)    
-    assert(isListOrderedStrong(0, List(-9)) === false)    
+    assert(isListOrderedStrong(0, List()))
+    assert(isListOrderedStrong(-10, List()))
+    assert(isListOrderedStrong(-10, List(-9)))
+    assert(isListOrderedStrong(0, List(1, 2)))
 
-    assert(!isListOrderedStrong(0, List(-9, 0, 9)))    
-    assert(!isListOrderedStrong(-9, List(-9, 0, 9)))    
+    assert(isListOrderedStrong(-9, List(-9)) === false)
+    assert(isListOrderedStrong(0, List(-9)) === false)
 
-    assert(isListOrderedStrong(-10, List(-9, 0, 9)))    
+    assert(!isListOrderedStrong(0, List(-9, 0, 9)))
+    assert(!isListOrderedStrong(-9, List(-9, 0, 9)))
+
+    assert(isListOrderedStrong(-10, List(-9, 0, 9)))
   }
-  
+
   test("countChange: borders for change") {
     assertCountChange(0, 0, List(1, 2))
     assertCountChange(0, 0, List(1, 2, 5))
@@ -37,22 +41,36 @@ class CountChangeSuite extends FunSuite {
   }
 
   test("countChange: invalid args for change") {
-    // change negative
+    assertCountChange(0, -1, List(1, 2))
+    assertCountChange(0, -10, List(1, 2))
   }
-  test("countChange: invalid args for coins") {
+  test("countChange: invalid args for coins - contains 0") {
     // cannot contain 0 
-    // change contain negatives
+    intercept[java.lang.IllegalArgumentException] {
+      assertCountChange(0, 10, List(1, 2, 0))
+    }
+  }
+  test("countChange: invalid args for coins - contains negative") {
+    // cannot contain 0 
+    intercept[java.lang.IllegalArgumentException] {
+      assertCountChange(0, 10, List(1, 2, -2))
+    }
     // cannot contain duplicates
+  }
+  test("countChange: invalid args for coins - contains duplicates") {
+    // cannot contain duplicates - 
+    assertCountChange(2, 2, List(1, 2))
+    assertCountChange(2, 2, List(1, 2, 1))    
   }
   test("countChange: normal args") {
     assertCountChange(1, 1, List(1))
     assertCountChange(1, 5, List(5))
     assertCountChange(1, 501, List(501))
 
-    assertCountChange(2, 2, List(1,2))
-    assertCountChange(2, 2, List(1,2))
-    assertCountChange(3, 4, List(1,2))
-    assertCountChange(3, 5, List(1,2))
+    assertCountChange(2, 2, List(1, 2))
+    assertCountChange(2, 2, List(1, 2))
+    assertCountChange(3, 4, List(1, 2))
+    assertCountChange(3, 5, List(1, 2))
   }
   test("countChange: strange") {
     // change negative
