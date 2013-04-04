@@ -3,7 +3,7 @@ package recfun
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import Main.balance
-import Main.balance2
+import Main._
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
@@ -20,6 +20,7 @@ class BalanceSuite extends FunSuite {
     testBalanceFn("balance : [" + arg.hashCode + "] " + arg, balance, arg, expectedResult)
     testBalanceFn("balance2: [" + arg.hashCode + "] " + arg, balance2, arg, expectedResult)
   }
+  
   // I do not change embedded tests - in fact I am curious of the mechanics behind assignment
   test("balance: '(if (zero? x) max (/ 1 x))' is balanced") {
     assert(balance("(if (zero? x) max (/ 1 x))".toList))

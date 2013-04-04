@@ -1,7 +1,9 @@
 package recfun
 
 import scala.annotation.tailrec
-import Math._
+
+import RecursiveUtils.isListOrderedStrong
+
 
 object Main {
   def main(args: Array[String]) {
@@ -87,18 +89,6 @@ object Main {
   def balance2(chars: List[Char]): Boolean = {
     balance2Helper(0, chars);
   }
-  // redundant function
-  // I know there is scala fun for it but for practicing ...
-  @tailrec
-  def isListOrderedStrong(orderedFromValue: Int, list: List[Int]): Boolean = {
-    list match {
-      case Nil =>
-        true
-      case head :: tail =>
-        if (orderedFromValue >= head) false
-        else isListOrderedStrong(head, tail)
-    }
-  } // isListOrderedStrong
 
   /**
    * Exercise 3
@@ -112,18 +102,6 @@ object Main {
    * @throws java.lang.IllegalArgumentException for invalid input
    */
   def countChange(money: Int, coins: List[Int]): Int = {
-
-    // redundant function
-    // I know there is scala fun for it but for practicing ...
-    @tailrec
-    def max(maxSoFar: Int, list: List[Int]): Int = {
-      coins match {
-        case Nil => maxSoFar
-        case head :: tail => max(
-          if (head > maxSoFar) head
-          else maxSoFar, coins)
-      }
-    } // max
 
     // redundant function
     def coinsAreValid(coins: List[Int]): Boolean = {

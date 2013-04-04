@@ -1,8 +1,9 @@
 package recfun
 
+import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 
-import org.junit.runner.RunWith
+import Main.countChange
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
@@ -14,21 +15,6 @@ class CountChangeSuite extends FunSuite {
     // List.reversed (order does not matter)
 
     assert(countChange(givenChange, coins) === ways)
-  }
-
-  test("isListOrderedStrong") {
-    assert(isListOrderedStrong(0, List()))
-    assert(isListOrderedStrong(-10, List()))
-    assert(isListOrderedStrong(-10, List(-9)))
-    assert(isListOrderedStrong(0, List(1, 2)))
-
-    assert(isListOrderedStrong(-9, List(-9)) === false)
-    assert(isListOrderedStrong(0, List(-9)) === false)
-
-    assert(!isListOrderedStrong(0, List(-9, 0, 9)))
-    assert(!isListOrderedStrong(-9, List(-9, 0, 9)))
-
-    assert(isListOrderedStrong(-10, List(-9, 0, 9)))
   }
 
   test("countChange: borders for change") {
@@ -60,7 +46,7 @@ class CountChangeSuite extends FunSuite {
   test("countChange: invalid args for coins - contains duplicates") {
     // cannot contain duplicates - 
     assertCountChange(2, 2, List(1, 2))
-    assertCountChange(2, 2, List(1, 2, 1))    
+    assertCountChange(2, 2, List(1, 2, 1))
   }
   test("countChange: normal args") {
     assertCountChange(1, 1, List(1))
