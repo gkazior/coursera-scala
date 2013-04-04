@@ -1,6 +1,8 @@
 */target
 */*/target
 */*/*/target
+*/.worksheet
+*/*/.worksheet
 build
 .gradle
 release.properties
