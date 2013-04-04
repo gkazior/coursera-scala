@@ -84,6 +84,18 @@ object Main {
   def balance2(chars: List[Char]): Boolean = {
     balance2Helper(0, chars);
   }
+  // redundant function
+  // I know there is scala fun for it but for practicing ...
+  @tailrec
+  def isListOrderedStrong(orderedFromValue: Int, list: List[Int]): Boolean = {
+    list match {
+      case Nil =>
+        true
+      case head :: tail =>
+        if (orderedFromValue >= head) false
+        else isListOrderedStrong(head, tail)
+    }
+  } // isListOrderedStrong
 
   /**
    * Exercise 3
@@ -93,10 +105,31 @@ object Main {
    * @param money money to change
    * @coins coins amounts, the same amount may be chosen several times
    * @return number of possible changes
-   * 
-   * @throws NoSuchElementException
+   *
+   * @throws java.lang.IllegalArgumentException for invalid input
    */
   def countChange(money: Int, coins: List[Int]): Int = {
+
+    // redundant function
+    // I know there is scala fun for it but for practicing ...
+    @tailrec
+    def max(maxSoFar: Int, list: List[Int]): Int = {
+      coins match {
+        case Nil => maxSoFar
+        case head :: tail => max(
+          if (head > maxSoFar) head
+          else maxSoFar, coins)
+      }
+    } // max
+
+    // redundant function
+    def coinsAreValid(coins: List[Int]): Boolean = {
+      // false when the list is not distinct - leads to not intuitive behavior
+      // maybe false when the list is not sorted. Sometimes when the list is sorted we sort, but do not need to
+      // ex:
+      isListOrderedStrong(0, coins) // 0 cannot be in the list!
+    } // coinsAreValid
+
     //@tailrec - cannot easily make it tail recursive because of case 1  
     def countChangeHelper(moneyLeft: Int, coins: List[Int], countSoFar: Int): Int = {
       coins match {
@@ -105,29 +138,25 @@ object Main {
           (moneyLeft - head).signum match {
             case 1 => // Sth to change
               countChangeHelper(moneyLeft - head, coins, countSoFar) +
-              countChangeHelper(moneyLeft, tail, 0) 
+                countChangeHelper(moneyLeft, tail, 0)
             case 0 => // nothing left to change
-              countChangeHelper(moneyLeft, tail, countSoFar + 1) 
+              countChangeHelper(moneyLeft, tail, countSoFar + 1)
             case _ => // tried to much
-              countChangeHelper(moneyLeft, tail, countSoFar) 
+              countChangeHelper(moneyLeft, tail, countSoFar)
           }
       }
-    }
-    def coinsAreInvalid(coins: List[Int]): Boolean = {
-      // TODO: false when the list is not distinct - leads to not intuitive behavior
-      // TODO: maybe false when the list is not sorted. Sometimes when the list is sorted we sort, but do not need to
-      true
-    }
+    } // countChangeHelper
+
     //countChangeHead(money, coins, 0)                                        // 8.374 sec
     //countChangeHead(money, coins.sortWith(_ > _), 0)                        // 3.832 sec
     //if (money <= 0) 0 else countChangeHead(money, coins.sortWith(_ > _), 0) // 3.790 sec
     // 2.834 sec after removing println
     // 2.665 sec after removing ret   
     // 0.054 sec removing all prints
-    val sortedCoins = coins.distinct.sortWith(_ > _)
-    if (coinsAreInvalid(sortedCoins)) throw new java.lang.IllegalArgumentException
-    
+    val sortedDescendingCoins = coins.distinct.sortWith(_ > _)
+    if (!coinsAreValid(sortedDescendingCoins.reverse)) throw new java.lang.IllegalArgumentException
+
     if (money <= 0) 0
-    else countChangeHelper(money, sortedCoins, 0) // 3.832 sec
-  }                                               
+    else countChangeHelper(money, sortedDescendingCoins, 0) // 3.832 sec
+  }
 }

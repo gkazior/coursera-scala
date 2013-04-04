@@ -7,10 +7,26 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class CountChangeSuite extends FunSuite {
-  import Main.countChange
+  import Main._
   def assertCountChange(ways: Int, givenChange: Int, coins: List[Int]) {
     assert(countChange(givenChange, coins) === ways)
   }
+  
+  test("isListOrderedStrong") {
+    assert(isListOrderedStrong(0, List()))    
+    assert(isListOrderedStrong(-10, List()))    
+    assert(isListOrderedStrong(-10, List(-9)))    
+    assert(isListOrderedStrong(0, List(1,2)))    
+    
+    assert(isListOrderedStrong(-9, List(-9)) === false)    
+    assert(isListOrderedStrong(0, List(-9)) === false)    
+
+    assert(!isListOrderedStrong(0, List(-9, 0, 9)))    
+    assert(!isListOrderedStrong(-9, List(-9, 0, 9)))    
+
+    assert(isListOrderedStrong(-10, List(-9, 0, 9)))    
+  }
+  
   test("countChange: borders for change") {
     assertCountChange(0, 0, List(1, 2))
     assertCountChange(0, 0, List(1, 2, 5))
