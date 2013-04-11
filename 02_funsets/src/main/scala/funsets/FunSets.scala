@@ -12,6 +12,10 @@ object FunSets {
    */
   type Set = Int => Boolean
 
+  def theSet(element: Int): Boolean = {
+    true
+  } 
+
   /**
    * Indicates whether a set contains a given element.
    */
@@ -20,7 +24,7 @@ object FunSets {
   /**
    * Returns the set of the one given element.
    */
-  def singletonSet(elem: Int): Set = ???
+  def singletonSet(elem: Int): Set = theSet
 
   /**
    * Returns the union of the two given sets,
