@@ -9,5 +9,6 @@ release.properties
 ~*.tmp
 *.jar
 *.class
+*/.cache
 
 
