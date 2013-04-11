@@ -1,5 +1,5 @@
 <projectDescription>
-  <name>progfun-example</name>
+  <name>00_progfun-example</name>
   <buildSpec>
     <buildCommand>
       <name>org.scala-ide.sdt.core.scalabuilder</name>

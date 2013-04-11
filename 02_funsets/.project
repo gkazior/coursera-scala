@@ -1,5 +1,5 @@
 <projectDescription>
-  <name>progfun-funsets</name>
+  <name>02_progfun-funsets</name>
   <buildSpec>
     <buildCommand>
       <name>org.scala-ide.sdt.core.scalabuilder</name>

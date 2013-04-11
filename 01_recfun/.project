@@ -1,5 +1,5 @@
 <projectDescription>
-  <name>progfun-recfun</name>
+  <name>01_progfun-recfun</name>
   <buildSpec>
     <buildCommand>
       <name>org.scala-ide.sdt.core.scalabuilder</name>
