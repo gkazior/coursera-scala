@@ -1,7 +1,7 @@
 package funsets
 
 import common._
-
+import MapReduce._
 /**
  * 2. Purely Functional Sets.
  */
@@ -92,24 +92,6 @@ object FunSets {
    */
   val bound = 1000
 
-  def mapreduce(s: Set // inputSet
-  , mapperFn: SetMapper // mapper function
-  , reducerFn: Set2Reducer // reducer function
-  ): Set = {
-    // applies reduceFn of Set2Reducer type
-    def applyReducer(s: Set, value: Int, reduceFn: Set2Reducer): Set = {
-      reduceFn(s, singletonSet(value))
-    }
-    // iterates through the range from a to bound
-    def iter(a: Int, acc: Set): Set = {
-      if (a > bound) acc
-      else if (contains(s, a))
-        iter(a + 1, applyReducer(acc, mapperFn(a), reducerFn))
-      else iter(a + 1, acc)
-    }
-    iter(-bound, emptySet())
-  }   
-  
   /**
    * Check the predicate. If fails then it returns false, if for each element is succeeds then returns true
    */
@@ -121,12 +103,16 @@ object FunSets {
     }
     iter(-bound, initialValue)
   }
-  
+
   // NOTE:
   //
   //   For all and exists have to check all the values so it is impossible to give the pure functional implementation
-  // it must be sht like this: forall(s,p) = forall(union(universumSet(), s) ,p) - but is is recursive definition
-  //
+  // it must be something like this: forall(s,p) = forall(union(universumSet(), s) ,p) - but is is recursive definition
+  // Possible we may pass the iterator to the function and define only failure condition 
+  // ex forall(predicate)=failWhen(differs(everyElement,predicate))
+  //    exists(predicate)=failWhen(differs(noneElement, predicate))
+  //    exists(predicate)=!failWhen(differs(!noneElement, predicate))
+
   // WOW, and this may work that way:
   // - if we provide the range to check - it will check all the values
   // - if we do not provide the value it may generate it starting from 0 .. infinitum and 0 .. -infinitum, then
@@ -150,18 +136,22 @@ object FunSets {
    * that satisfies `p`.
    */
   def exists(s: Set, p: Int => Boolean): Boolean = {
-    def iter(a: Int, acc: Boolean): Boolean = {
-      if (a > bound) acc
-      else if (contains(s, a) && p(a)) true
-      else iter(a + 1, acc)
-    }
-    iter(-bound, false)
+    !forall(s, x => !p(x))
   }
 
   /**
    * Returns a set transformed by applying `f` to each element of `s`.
    */
-  def map(s: Set, f: SetMapper): Set = mapreduce(s, f, union)
+  def map(s: Set, f: Int => Int): Set = {
+    def iter(a: Int, acc: Set): Set = {
+      if (a > bound) acc
+      else if (contains(s, a))
+        iter(a + 1, union(singletonSet(f(a)), acc))
+      else iter(a + 1, acc)
+    }
+    iter(-bound, emptySet())
+  }
+  def map2(s: Set, f: SetMapper): Set = mapreduce(s, f, union)
 
   /**
    * Displays the contents of a set
