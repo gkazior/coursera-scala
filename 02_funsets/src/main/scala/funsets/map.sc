@@ -27,7 +27,8 @@ object map {
   checkPredicate(closedRange(2, 5), x => x < 6, true)
                                                   //> res0: Boolean = true
 
-  printSet(r123)                                  //> {1,2,3}
+  val xx = printSet(r123)                         //> {1,2,3}
+                                                  //| xx  : Unit = ()
   printSet(map(r123, x => x * 2))                 //> {2,4,6}
   printSet(map2(r123, x => x * 2))                //> {2,4,6}
 

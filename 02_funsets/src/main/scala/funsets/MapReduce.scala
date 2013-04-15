@@ -4,6 +4,10 @@ import funsets.FunSets._
 
 object MapReduce {
 
+  def product(f: Int=>Int)(a: Int, b: Int):Int = {
+    if (a>b) 1
+    else f(a)*product(f)(a+1,b)
+  }
     
   def mapreduce(s: Set // inputSet
   , mapperFn: SetMapper // mapper function

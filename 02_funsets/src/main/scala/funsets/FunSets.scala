@@ -104,6 +104,7 @@ object FunSets {
     iter(-bound, initialValue)
   }
 
+  // TODO: Check the possibility below
   // NOTE:
   //
   //   For all and exists have to check all the values so it is impossible to give the pure functional implementation
