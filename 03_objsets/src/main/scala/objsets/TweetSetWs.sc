@@ -2,6 +2,7 @@ package objsets
 
 
 object TweetSetWs {
+
   val set1 = new Empty                            //> set1  : objsets.Empty = .
   val set2 = set1.incl(new Tweet("a", "a body", 20))
                                                   //> set2  : objsets.TweetSet = (User(a,20)L=.R=.)

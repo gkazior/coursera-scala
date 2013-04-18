@@ -224,6 +224,8 @@ trait TweetList {
   }
 
   /**
+   * Puts the tween on the list just after the tweet which is smaller according to orderFn.
+   * When all the element are put using this method then the list is ordered.
    * orderFn returns true when the first tweet is smaller then the second
    */
   def putInOrder(tweet: Tweet, orderFn: (Tweet, Tweet) => Boolean): TweetList = {
@@ -249,15 +251,16 @@ object GoogleVsApple {
   val google = List("android", "Android", "galaxy", "Galaxy", "nexus", "Nexus")
   val apple = List("ios", "iOS", "iphone", "iPhone", "ipad", "iPad")
 
+  TweetReader.allTweets.filter(x => google.exists(keyword => x.text.contains(keyword)))
   // everything from TweetData which contains keywords from google and apple?
-  lazy val googleTweets: TweetSet = ???
-  lazy val appleTweets: TweetSet = ???
+  lazy val googleTweets: TweetSet = allTweets filter (x => google exists(keyword => x.text.contains(keyword)))
+  lazy val appleTweets: TweetSet = allTweets filter  (x => apple exists(keyword => x.text.contains(keyword)))
 
   /**
    * A list of all tweets mentioning a keyword from either apple or google,
    * sorted by the number of retweets.
    */
-  lazy val trending: TweetList = ???
+  lazy val trending: TweetList = googleTweets union appleTweets descendingByRetweet
 }
 
 object Main extends App {
