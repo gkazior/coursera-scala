@@ -7,16 +7,18 @@ import TweetReader._
  * A class to represent tweets.
  */
 class Tweet(val user: String, val text: String, val retweets: Int) {
+  //  override def toString: String =
+  //    "User: " + user + "\n" +
+  //      "Text: " + text + " [" + retweets + "]"
   override def toString: String =
-    "User: " + user + "\n" +
-    "Text: " + text + " [" + retweets + "]"
+    "User(" + user + "," + retweets + ")"
 }
 
 /**
  * This represents a set of objects of type `Tweet` in the form of a binary search
  * tree. Every branch in the tree has two children (two `TweetSet`s). There is an
  * invariant which always holds: for every branch `b`, all elements in the left
- * subtree are smaller than the tweet at `b`. The eleemnts in the right subtree are
+ * subtree are smaller than the tweet at `b`. The elements in the right subtree are
  * larger.
  *
  * Note that the above structure requires us to be able to compare two tweets (we
@@ -42,7 +44,7 @@ abstract class TweetSet {
    * Question: Can we implement this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def filter(p: Tweet => Boolean): TweetSet = ???
+  def filter(p: Tweet => Boolean): TweetSet = filterAcc(p, this)
 
   /**
    * This is a helper method for `filter` that propagates the accumulated tweets.
@@ -55,7 +57,25 @@ abstract class TweetSet {
    * Question: Should we implement this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-   def union(that: TweetSet): TweetSet = ???
+  def union(that: TweetSet): TweetSet = {
+    var acc = this;
+
+    def maybeIncl(x: Tweet): Unit = if (!acc.contains(x)) acc = acc.incl(x)
+
+    that.foreach(maybeIncl)
+
+    acc
+  }
+
+  /**
+   * Returns true when the TweetSet is empty.
+   * We have the Empty case class but:
+   *  - do not want to depend here on implementation classes
+   *  - may in fact implement it using theTweetSet.union(Empty) is the same as Empty or foreach() get no call
+   *  - in case of different implementation we have to change the code
+   *  In any case seems reasonable to introduce the method here
+   */
+  def isEmpty(): Boolean
 
   /**
    * Returns the tweet from this set which has the greatest retweet count.
@@ -66,7 +86,19 @@ abstract class TweetSet {
    * Question: Should we implement this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def mostRetweeted: Tweet = ???
+  def mostRetweeted: Tweet = {
+    if (isEmpty) throw new java.util.NoSuchElementException
+
+    var maxTweet: Option[Tweet] = None
+
+    foreach(
+      x =>
+        if (!maxTweet.isDefined) maxTweet = Some(x)
+        else if (x.retweets > maxTweet.get.retweets)
+          maxTweet = Some(x))
+
+    maxTweet.get // The option cannot be empty, since isEmpty should be handled by the exception
+  }
 
   /**
    * Returns a list containing all tweets of this set, sorted by retweet count
@@ -77,8 +109,7 @@ abstract class TweetSet {
    * Question: Should we implement this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def descendingByRetweet: TweetList = ???
-
+  def descendingByRetweet: TweetList;
 
   /**
    * The following methods are already implemented
@@ -106,12 +137,15 @@ abstract class TweetSet {
    * This method takes a function and applies it to every element in the set.
    */
   def foreach(f: Tweet => Unit): Unit
+  def foreachLER(f: Tweet => Unit): Unit
 }
 
 class Empty extends TweetSet {
 
-  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = ???
-
+  /**
+   * No matter what the function p is, filtering will always return the Empty set which is this
+   */
+  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = this
 
   /**
    * The following methods are already implemented
@@ -123,13 +157,24 @@ class Empty extends TweetSet {
 
   def remove(tweet: Tweet): TweetSet = this
 
+  def isEmpty() = true
+
   def foreach(f: Tweet => Unit): Unit = ()
+
+  def foreachLER(f: Tweet => Unit): Unit = ()
+
+  def descendingByRetweet: TweetList = Nil
+
+  override def toString() = "."
 }
 
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
-  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = ???
-
+  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = {
+    var myAcc = acc;
+    foreach(x => if (!p(x)) myAcc = myAcc.remove(x))
+    myAcc
+  }
 
   /**
    * The following methods are already implemented
@@ -156,6 +201,28 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
     left.foreach(f)
     right.foreach(f)
   }
+
+  /**
+   * Like foreach, but first is (L)eft, then the (E)lement, then (R)ight 
+   * */
+  def foreachLER(f: Tweet => Unit): Unit = {
+    left.foreachLER(f)
+    println("Visit:" + elem)
+    f(elem)
+    right.foreachLER(f)
+  }
+  
+  
+  def isEmpty() = false
+
+  def descendingByRetweet: TweetList = {
+    var acc: TweetList = Nil
+    foreachLER(x => acc = acc.push(x))
+    acc
+  }
+
+  
+  override def toString() = "(" + left.toString()  + elem.toString + right.toString() + ")"
 }
 
 trait TweetList {
@@ -167,23 +234,28 @@ trait TweetList {
       f(head)
       tail.foreach(f)
     }
+  def push(tweet: Tweet): TweetList = {
+    new Cons(tweet, this)
+  }  
 }
 
 object Nil extends TweetList {
   def head = throw new java.util.NoSuchElementException("head of EmptyList")
   def tail = throw new java.util.NoSuchElementException("tail of EmptyList")
   def isEmpty = true
+  override def toString() = "<end>"
 }
 
 class Cons(val head: Tweet, val tail: TweetList) extends TweetList {
   def isEmpty = false
+  override def toString() = "(" + head.toString + " " + tail.toString() + ")" 
 }
-
 
 object GoogleVsApple {
   val google = List("android", "Android", "galaxy", "Galaxy", "nexus", "Nexus")
   val apple = List("ios", "iOS", "iphone", "iPhone", "ipad", "iPad")
 
+  // everything from TweetData which contains keywords from google and apple
   lazy val googleTweets: TweetSet = ???
   lazy val appleTweets: TweetSet = ???
 
