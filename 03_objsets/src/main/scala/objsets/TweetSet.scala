@@ -137,7 +137,6 @@ abstract class TweetSet {
    * This method takes a function and applies it to every element in the set.
    */
   def foreach(f: Tweet => Unit): Unit
-  def foreachLER(f: Tweet => Unit): Unit
 }
 
 class Empty extends TweetSet {
@@ -160,8 +159,6 @@ class Empty extends TweetSet {
   def isEmpty() = true
 
   def foreach(f: Tweet => Unit): Unit = ()
-
-  def foreachLER(f: Tweet => Unit): Unit = ()
 
   def descendingByRetweet: TweetList = Nil
 
@@ -187,7 +184,7 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
   def incl(x: Tweet): TweetSet = {
     if (x.text < elem.text) new NonEmpty(elem, left.incl(x), right)
-    else if (elem.text < x.text) new NonEmpty(elem, left, right.incl(x))
+    else if (x.text > elem.text) new NonEmpty(elem, left, right.incl(x))
     else this
   }
 
@@ -202,27 +199,15 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
     right.foreach(f)
   }
 
-  /**
-   * Like foreach, but first is (L)eft, then the (E)lement, then (R)ight 
-   * */
-  def foreachLER(f: Tweet => Unit): Unit = {
-    left.foreachLER(f)
-    println("Visit:" + elem)
-    f(elem)
-    right.foreachLER(f)
-  }
-  
-  
   def isEmpty() = false
 
   def descendingByRetweet: TweetList = {
     var acc: TweetList = Nil
-    foreachLER(x => acc = acc.push(x))
+    foreach(x => acc = acc.putInOrder(x, (x, y) => x.retweets > y.retweets))
     acc
   }
 
-  
-  override def toString() = "(" + left.toString()  + elem.toString + right.toString() + ")"
+  override def toString() = "(" + elem.toString + "L=" + left.toString() + "R=" + right.toString() + ")"
 }
 
 trait TweetList {
@@ -236,7 +221,16 @@ trait TweetList {
     }
   def push(tweet: Tweet): TweetList = {
     new Cons(tweet, this)
-  }  
+  }
+
+  /**
+   * orderFn returns true when the first tweet is smaller then the second
+   */
+  def putInOrder(tweet: Tweet, orderFn: (Tweet, Tweet) => Boolean): TweetList = {
+    if (isEmpty) new Cons(tweet, Nil)
+    else if (orderFn(tweet, head)) new Cons(tweet, this)
+    else new Cons(head, tail.putInOrder(tweet, orderFn))
+  }
 }
 
 object Nil extends TweetList {
@@ -248,14 +242,14 @@ object Nil extends TweetList {
 
 class Cons(val head: Tweet, val tail: TweetList) extends TweetList {
   def isEmpty = false
-  override def toString() = "(" + head.toString + " " + tail.toString() + ")" 
+  override def toString() = "(" + head.toString + " " + tail.toString() + ")"
 }
 
 object GoogleVsApple {
   val google = List("android", "Android", "galaxy", "Galaxy", "nexus", "Nexus")
   val apple = List("ios", "iOS", "iphone", "iPhone", "ipad", "iPad")
 
-  // everything from TweetData which contains keywords from google and apple
+  // everything from TweetData which contains keywords from google and apple?
   lazy val googleTweets: TweetSet = ???
   lazy val appleTweets: TweetSet = ???
 

@@ -64,13 +64,6 @@ class TweetSetSuite extends FunSuite {
     }
   }
 
-  test("descending: setx") {
-    new TestSets {
-      val trends = setx.descendingByRetweet
-      assert(!trends.isEmpty)
-      assert(trends.head.user == "a" || trends.head.user == "b")
-    }
-  }
   test("descending: set5") {
     new TestSets {
       val trends = set5.descendingByRetweet
