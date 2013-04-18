@@ -2,6 +2,7 @@ package funsets
 
 import common._
 import MapReduce._
+import scala.annotation.tailrec
 /**
  * 2. Purely Functional Sets.
  */
@@ -104,7 +105,6 @@ object FunSets {
     iter(-bound, initialValue)
   }
 
-  // TODO: Check the possibility below
   // NOTE:
   //
   //   For all and exists have to check all the values so it is impossible to give the pure functional implementation

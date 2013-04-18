@@ -39,8 +39,6 @@ object Main {
     if (c == 0 || c == r) 1
     else pascal(c - 1, r - 1) + pascal(c, r - 1)
   }
-  // TODO: How to memoize the pascal fn - quite easy to write/read a global table(c,r)
-
   @tailrec
   private def balanceHelper(currentlyOpenNo: Int, chars: List[Char]): Boolean = {
     if (currentlyOpenNo < 0) false
@@ -51,8 +49,7 @@ object Main {
       case _ => balanceHelper(currentlyOpenNo, chars.tail)
     }
   }
-  @tailrec // 
-  // redundant function
+  @tailrec // redundant function
   private def balance2Helper(currentlyOpenNo: Int, chars: List[Char]): Boolean = {
     if (currentlyOpenNo < 0) false
     else chars match {
@@ -130,9 +127,9 @@ object Main {
     // 2.834 sec after removing println
     // 2.665 sec after removing ret   
     // 0.054 sec removing all prints
-    
+
     val sortedDescendingCoins = coins.distinct.sortWith(_ > _)
-    
+
     if (!coinsAreValid(sortedDescendingCoins.reverse)) throw new java.lang.IllegalArgumentException
 
     if (money <= 0) 0
