@@ -2,6 +2,7 @@ package objsets
 
 import common._
 import TweetReader._
+import scala.language.postfixOps
 
 /**
  * A class to represent tweets.
@@ -44,7 +45,7 @@ abstract class TweetSet {
    * Question: Can we implement this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def filter(p: Tweet => Boolean): TweetSet = filterAcc(p, this)
+  def filter(p: Tweet => Boolean): TweetSet = filterAcc(p, new Empty)
 
   /**
    * This is a helper method for `filter` that propagates the accumulated tweets.
@@ -58,13 +59,7 @@ abstract class TweetSet {
    * and be implemented in the subclasses?
    */
   def union(that: TweetSet): TweetSet = {
-    var acc = this;
-
-    def maybeIncl(x: Tweet): Unit = if (!acc.contains(x)) acc = acc.incl(x)
-
-    that.foreach(maybeIncl)
-
-    acc
+    filterAcc(!that.contains(_), that)
   }
 
   /**
@@ -89,15 +84,15 @@ abstract class TweetSet {
   def mostRetweeted: Tweet = {
     if (isEmpty) throw new java.util.NoSuchElementException
 
-    var maxTweet: Option[Tweet] = None
-
-    foreach(
-      x =>
-        if (!maxTweet.isDefined) maxTweet = Some(x)
-        else if (x.retweets > maxTweet.get.retweets)
-          maxTweet = Some(x))
-
-    maxTweet.get // The option cannot be empty, since isEmpty should be handled by the exception
+    foreach2[Option[Tweet]](
+      x => true // pick everyone
+      , (x, maxSoFar) => {
+        if (maxSoFar.isEmpty) Some(x)
+        else if (x.retweets < maxSoFar.get.retweets) Some(x)
+        else maxSoFar
+      } //
+      , None)
+      .get
   }
 
   /**
@@ -137,6 +132,16 @@ abstract class TweetSet {
    * This method takes a function and applies it to every element in the set.
    */
   def foreach(f: Tweet => Unit): Unit
+
+  /**
+   * like for each but uses
+   * @param collectPred to decide if the elem of the set should be collected
+   * @param collectFn which collects elements using acc
+   * @param acc accumulator for collectFn
+   * @returns collected value
+   */
+  def foreach2[T](collectPred: Tweet => Boolean, collectFn: (Tweet, T) => T, acc: T): T
+
 }
 
 class Empty extends TweetSet {
@@ -144,7 +149,7 @@ class Empty extends TweetSet {
   /**
    * No matter what the function p is, filtering will always return the Empty set which is this
    */
-  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = this
+  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = acc
 
   /**
    * The following methods are already implemented
@@ -160,6 +165,8 @@ class Empty extends TweetSet {
 
   def foreach(f: Tweet => Unit): Unit = ()
 
+  def foreach2[T](collectPred: Tweet => Boolean, collectFn: (Tweet, T) => T, acc: T): T = acc
+
   def descendingByRetweet: TweetList = Nil
 
   override def toString() = "."
@@ -168,9 +175,8 @@ class Empty extends TweetSet {
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
   def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = {
-    var myAcc = acc;
-    foreach(x => if (!p(x)) myAcc = myAcc.remove(x))
-    myAcc
+    val elemAcc = if (p(elem)) acc.incl(elem) else acc
+    right.filterAcc(p, left.filterAcc(p, elemAcc))
   }
 
   /**
@@ -201,10 +207,18 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
   def isEmpty() = false
 
+  def foreach2[T](collectPred: Tweet => Boolean, collectFn: (Tweet, T) => T, acc: T): T = {
+    val elemAcc = if (collectPred(elem)) collectFn(elem, acc) else acc
+    right.foreach2(collectPred, collectFn, left.foreach2(collectPred, collectFn, elemAcc))
+  }
+
+  private def greaterByRetweet(x: Tweet, y: Tweet): Boolean = x.retweets > y.retweets
+
   def descendingByRetweet: TweetList = {
-    var acc: TweetList = Nil
-    foreach(x => acc = acc.putInOrder(x, (x, y) => x.retweets > y.retweets))
-    acc
+    foreach2[TweetList]( // result will be TweetList
+      x => true // pick every item
+      , (x, acc) => { acc.putInOrder(x, greaterByRetweet) } // Accumulate means putInOder
+      , Nil) // Start with empty list
   }
 
   override def toString() = "(" + elem.toString + "L=" + left.toString() + "R=" + right.toString() + ")"
@@ -253,8 +267,8 @@ object GoogleVsApple {
 
   TweetReader.allTweets.filter(x => google.exists(keyword => x.text.contains(keyword)))
   // everything from TweetData which contains keywords from google and apple?
-  lazy val googleTweets: TweetSet = allTweets filter (x => google exists(keyword => x.text.contains(keyword)))
-  lazy val appleTweets: TweetSet = allTweets filter  (x => apple exists(keyword => x.text.contains(keyword)))
+  lazy val googleTweets: TweetSet = allTweets filter (x => google exists (keyword => x.text.contains(keyword)))
+  lazy val appleTweets: TweetSet = allTweets filter (x => apple exists (keyword => x.text.contains(keyword)))
 
   /**
    * A list of all tweets mentioning a keyword from either apple or google,

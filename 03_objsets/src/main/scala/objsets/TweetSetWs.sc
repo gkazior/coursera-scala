@@ -1,6 +1,5 @@
 package objsets
 
-
 object TweetSetWs {
 
   val set1 = new Empty                            //> set1  : objsets.Empty = .
@@ -22,28 +21,35 @@ object TweetSetWs {
   val set5 = set4c.incl(d)                        //> set5  : objsets.TweetSet = (User(a,20)L=.R=(User(b,20)L=.R=(User(c,7)L=.R=(U
                                                   //| ser(d,9)L=.R=.))))
   val sete = set1.incl(e)                         //> sete  : objsets.TweetSet = (User(e,29)L=.R=.)
- 
+
   set5.filter(x => x.retweets > 10)               //> res0: objsets.TweetSet = (User(a,20)L=.R=(User(b,20)L=.R=.))
   val set_e = set1.incl(e)                        //> set_e  : objsets.TweetSet = (User(e,29)L=.R=.)
   val set_x = set1.incl(x)                        //> set_x  : objsets.TweetSet = (User(x,7)L=.R=.)
   val set_z = set1.incl(z)                        //> set_z  : objsets.TweetSet = (User(z,13)L=.R=.)
-  
+
   val set_xe = set_x.incl(e)                      //> set_xe  : objsets.TweetSet = (User(x,7)L=(User(e,29)L=.R=.)R=.)
   val set_ex = set_e.incl(x)                      //> set_ex  : objsets.TweetSet = (User(e,29)L=.R=(User(x,7)L=.R=.))
 
   val set_xez = set_xe.incl(z)                    //> set_xez  : objsets.TweetSet = (User(x,7)L=(User(e,29)L=.R=.)R=(User(z,13)L=.
                                                   //| R=.))
-  
+
   val set_exz = set_ex.incl(z)                    //> set_exz  : objsets.TweetSet = (User(e,29)L=.R=(User(x,7)L=.R=(User(z,13)L=.R
                                                   //| =.)))
-  
- 
 
-  
-  set_xez.descendingByRetweet                     //> res1: objsets.TweetList = (User(e,29) (User(z,13) (User(x,7) <end>)))
-  set_exz.descendingByRetweet                     //> res2: objsets.TweetList = (User(e,29) (User(z,13) (User(x,7) <end>)))
+  set_xez.descendingByRetweet                     //> elemAcc:(User(x,7) <end>)
+                                                  //| elemAcc:(User(e,29) (User(x,7) <end>))
+                                                  //| elemAcc:(User(e,29) (User(z,13) (User(x,7) <end>)))
+                                                  //| res1: objsets.TweetList = (User(e,29) (User(z,13) (User(x,7) <end>)))
+  set_exz.descendingByRetweet                     //> elemAcc:(User(e,29) <end>)
+                                                  //| elemAcc:(User(e,29) (User(x,7) <end>))
+                                                  //| elemAcc:(User(e,29) (User(z,13) (User(x,7) <end>)))
+                                                  //| res2: objsets.TweetList = (User(e,29) (User(z,13) (User(x,7) <end>)))
 
-  set5.descendingByRetweet                        //> res3: objsets.TweetList = (User(a,20) (User(b,20) (User(d,9) (User(c,7) <end
+  set5.descendingByRetweet                        //> elemAcc:(User(a,20) <end>)
+                                                  //| elemAcc:(User(a,20) (User(b,20) <end>))
+                                                  //| elemAcc:(User(a,20) (User(b,20) (User(c,7) <end>)))
+                                                  //| elemAcc:(User(a,20) (User(b,20) (User(d,9) (User(c,7) <end>))))
+                                                  //| res3: objsets.TweetList = (User(a,20) (User(b,20) (User(d,9) (User(c,7) <end
                                                   //| >))))
 
 }
