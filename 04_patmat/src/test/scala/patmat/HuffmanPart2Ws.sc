@@ -11,7 +11,6 @@ object HuffmanPart2Ws {
   def ALWAYS2[Type, AccType](arg1: Type, arg2: AccType): Boolean = true
                                                   //> ALWAYS2: [Type, AccType](arg1: Type, arg2: AccType)Boolean
 
-  // TODO: add partiality
   def foreach[Type, AccType](
     list: List[Type] // foreach traverses for each element of the list
     , acc: => AccType = Nil // Starts with the acc
@@ -35,26 +34,16 @@ object HuffmanPart2Ws {
   val concat: List[(Char, Int)] = ('a', 1) :: List(('b', 2))
                                                   //> concat  : List[(Char, Int)] = List((a,1), (b,2))
 
-  def addPair(pair: (Char, Int), list: List[(Char, Int)]): List[(Char, Int)] = {
-    list match {
-      case Nil => List(pair)
-      case (char, times) :: tail =>
-        if (char == pair._1) (char, pair._2 + times) :: tail
-        else (char, times) :: addPair(pair, tail)
-    }
-
-  }                                               //> addPair: (pair: (Char, Int), list: List[(Char, Int)])List[(Char, Int)]
-
-  def times(chars: List[Char]): List[(Char, Int)] = {
-    foreach[Char, List[(Char, Int)]](
-      chars // trawersing chars
-      , List() // accumulator is empty list
-      )((x, acc) => addPair((x, 1), acc)) // collecting function adds a pair
-
-  }                                               //> times: (chars: List[Char])List[(Char, Int)]
 
   times(string2Chars("helpma"))                   //> res0: List[(Char, Int)] = List((h,1), (e,1), (l,1), (p,1), (m,1), (a,1))
   times(string2Chars("aheala"))                   //> res1: List[(Char, Int)] = List((a,3), (h,1), (e,1), (l,1))
+  val eha = times(string2Chars("eehahealaa"))     //> eha  : List[(Char, Int)] = List((e,3), (h,2), (a,4), (l,1))
+  
+  putInOrder(('a', 10), eha, firstLess)           //> res2: List[(Char, Int)] = List((e,3), (h,2), (a,4), (l,1), (a,10))
+  
+  makeOrderedLeafList(eha)                        //> List((l,1), (h,2), (e,3), (a,4))
+                                                  //| res3: List[patmat.Huffman.Leaf] = List(Leaf(l,1), Leaf(h,2), Leaf(e,3), Lea
+                                                  //| f(a,4))
 
   val l1 = string2Chars("aaabbcc")                //> l1  : List[Char] = List(a, a, a, b, b, c, c)
   val l2 = List(1, 2, 3, 4, 1)                    //> l2  : List[Int] = List(1, 2, 3, 4, 1)
@@ -64,26 +53,28 @@ object HuffmanPart2Ws {
   def plus3(x: Int, fn: Int => Int = x => x + 1, fnPred: Int => Boolean = ALWAYS[Int]) = if (fnPred(x)) fn(x) else x
                                                   //> plus3: (x: Int, fn: Int => Int, fnPred: Int => Boolean)Int
 
-  l2.reduce(plus)                                 //> res2: Int = 11
-  l2 reduce plus                                  //> res3: Int = 11
-  l2 reduce (_ + _)                               //> res4: Int = 11
+  l2.reduce(plus)                                 //> res4: Int = 11
+  l2 reduce plus                                  //> res5: Int = 11
+  l2 reduce (_ + _)                               //> res6: Int = 11
+  
+  l2 map (_ + 1)                                  //> res7: List[Int] = List(2, 3, 4, 5, 2)
   // computes the sum
-  foreach[Int, Int](l2, 0)((x, acc) => x + acc)   //> res5: Int = 11
+  foreach[Int, Int](l2, 0)((x, acc) => x + acc)   //> res8: Int = 11
  
   // computes the sum, stops then sum is greater than 5
   foreach[Int, Int](l2, 0 //
   , collectPred = ALWAYS //
   , stopPred = (x, acc) => acc > 5) ((x, acc) => x + acc)
-                                                  //> res6: Int = 6
+                                                  //> res9: Int = 6
   
   foreach[Int, Int](l2, 0, stopPred = (x, acc) => acc > 5) // Here the collectPred is ommitted
   {
     (x, acc) => x + acc // Thanks to partial function we may write also
-  }                                               //> res7: Int = 6
+  }                                               //> res10: Int = 6
 
   l2.foldLeft(0) {
     (x, y) => x + y
-  }                                               //> res8: Int = 11
+  }                                               //> res11: Int = 11
 
   val defaultArg = plus(3)                        //> defaultArg  : Int = 4
   val defaultArg2 = plus2(3, 1 + _)               //> defaultArg2  : Int = 4
