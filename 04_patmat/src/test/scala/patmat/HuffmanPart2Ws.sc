@@ -11,6 +11,7 @@ object HuffmanPart2Ws {
   def ALWAYS2[Type, AccType](arg1: Type, arg2: AccType): Boolean = true
                                                   //> ALWAYS2: [Type, AccType](arg1: Type, arg2: AccType)Boolean
 
+//TODO: Passing values by name is not safe since it may be evaluated multiple times!
   def foreach[Type, AccType](
     list: List[Type] // foreach traverses for each element of the list
     , acc: => AccType = Nil // Starts with the acc
@@ -34,13 +35,12 @@ object HuffmanPart2Ws {
   val concat: List[(Char, Int)] = ('a', 1) :: List(('b', 2))
                                                   //> concat  : List[(Char, Int)] = List((a,1), (b,2))
 
-
   times(string2Chars("helpma"))                   //> res0: List[(Char, Int)] = List((h,1), (e,1), (l,1), (p,1), (m,1), (a,1))
   times(string2Chars("aheala"))                   //> res1: List[(Char, Int)] = List((a,3), (h,1), (e,1), (l,1))
   val eha = times(string2Chars("eehahealaa"))     //> eha  : List[(Char, Int)] = List((e,3), (h,2), (a,4), (l,1))
-  
+
   putInOrder(('a', 10), eha, firstLess)           //> res2: List[(Char, Int)] = List((e,3), (h,2), (a,4), (l,1), (a,10))
-  
+
   makeOrderedLeafList(eha)                        //> List((l,1), (h,2), (e,3), (a,4))
                                                   //| res3: List[patmat.Huffman.Leaf] = List(Leaf(l,1), Leaf(h,2), Leaf(e,3), Lea
                                                   //| f(a,4))
@@ -56,17 +56,17 @@ object HuffmanPart2Ws {
   l2.reduce(plus)                                 //> res4: Int = 11
   l2 reduce plus                                  //> res5: Int = 11
   l2 reduce (_ + _)                               //> res6: Int = 11
-  
+
   l2 map (_ + 1)                                  //> res7: List[Int] = List(2, 3, 4, 5, 2)
   // computes the sum
   foreach[Int, Int](l2, 0)((x, acc) => x + acc)   //> res8: Int = 11
- 
+
   // computes the sum, stops then sum is greater than 5
   foreach[Int, Int](l2, 0 //
   , collectPred = ALWAYS //
-  , stopPred = (x, acc) => acc > 5) ((x, acc) => x + acc)
+  , stopPred = (x, acc) => acc > 5)((x, acc) => x + acc)
                                                   //> res9: Int = 6
-  
+
   foreach[Int, Int](l2, 0, stopPred = (x, acc) => acc > 5) // Here the collectPred is ommitted
   {
     (x, acc) => x + acc // Thanks to partial function we may write also
@@ -81,5 +81,39 @@ object HuffmanPart2Ws {
   val defaultArg3 = plus2(3)                      //> defaultArg3  : Int = 4
   val defaultArg40 = plus3(3, 1 + _, ALWAYS[Int]) //> defaultArg40  : Int = 4
   val defaultArg41 = plus3(3, 1 + _)              //> defaultArg41  : Int = 4
+
+   1 :: 2 :: List(3,4,5)                          //> res12: List[Int] = List(1, 2, 3, 4, 5)
+
+  def byName(a: => Unit) = {
+    val byNameFix = a
+    for (idx <- 0 until 10) { println(byNameFix) }
+
+  }                                               //> byName: (a: => Unit)Unit
+
+  def byValue(a: Unit) = {
+    for (idx <- 0 until 5) { println(a) }
+
+  }                                               //> byValue: (a: Unit)Unit
+
+  var i = 1;                                      //> i  : Int = 1
+  //byValue(i = 3)
+  byValue(i = i + 1)                              //> ()
+                                                  //| ()
+                                                  //| ()
+                                                  //| ()
+                                                  //| ()
+  println(i);                                     //> 2
+
+  byName(i = i + 1)                               //> ()
+                                                  //| ()
+                                                  //| ()
+                                                  //| ()
+                                                  //| ()
+                                                  //| ()
+                                                  //| ()
+                                                  //| ()
+                                                  //| ()
+                                                  //| ()
+  println(i)                                      //> 3
 
 }

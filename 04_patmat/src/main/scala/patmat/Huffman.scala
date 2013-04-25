@@ -2,6 +2,7 @@ package patmat
 
 import common._
 import patmat.MapUtils._
+import scala.annotation.tailrec
 
 /**
  * Assignment 4: Huffman coding
@@ -20,7 +21,12 @@ object Huffman {
    * leaves.
    */
   abstract class CodeTree
-  case class Fork(left: CodeTree, right: CodeTree, chars: List[Char], weight: Int) extends CodeTree
+  case class Fork(left: CodeTree, right: CodeTree, chars: List[Char], weight: Int) extends CodeTree {
+    def this(left: CodeTree, right: CodeTree) = this(left, right, chars(left) ::: chars(right), weight(left) + weight(right))
+    override def toString() = {
+      "Fork(" + chars.mkString + "," + weight + "," + left + "," + right + ")"
+    }
+  }
   case class Leaf(char: Char, weight: Int) extends CodeTree
 
   // Part 1: Basics
@@ -94,11 +100,13 @@ object Huffman {
     val orderedList = foreach[(Char, Int), List[(Char, Int)]](freqs, Nil) {
       (pair, acc) => putInOrder(pair, acc, firstLess)
     }
-    println(orderedList)
+
     orderedList map (x => Leaf(x._1, x._2))
   }
 
   def firstLess(pairA: (Char, Int), pairB: (Char, Int)): Boolean = pairA._2 < pairB._2
+  def firstLessByWeight(a: CodeTree, b: CodeTree) = weight(a) < weight(b)
+  def firstGreaterByWeight(a: CodeTree, b: CodeTree) = weight(a) > weight(b)
 
   /**
    * Puts in the list
@@ -115,7 +123,13 @@ object Huffman {
   /**
    * Checks whether the list `trees` contains only one single code tree.
    */
-  def singleton(trees: List[CodeTree]): Boolean = ???
+  def singleton(trees: List[CodeTree]): Boolean = {
+    trees match {
+      // interesting thing - I do not have to guard against empty list:  case Nil => false
+      case leaf :: Nil => true
+      case _ => false
+    }
+  }
 
   /**
    * The parameter `trees` of this function is a list of code trees ordered
@@ -129,7 +143,21 @@ object Huffman {
    * If `trees` is a list of less than two elements, that list should be returned
    * unchanged.
    */
-  def combine(trees: List[CodeTree]): List[CodeTree] = ???
+  def combine(trees: List[CodeTree]): List[CodeTree] = combineX(trees, false)
+
+  /**
+   * Same as combine but recursive
+   */
+  @tailrec
+  def combineX(trees: List[CodeTree], recursive: Boolean = true): List[CodeTree] = {
+    trees match {
+      case Nil => Nil
+      case head :: Nil => trees
+      case first :: second :: rest =>
+        if (recursive) combineX(putInOrder(new Fork(first, second), rest, firstLessByWeight))
+        else putInOrder(new Fork(first, second), rest, firstLessByWeight)
+    }
+  }
 
   /**
    * This function will be called in the following way:
@@ -148,7 +176,11 @@ object Huffman {
    *    the example invocation. Also define the return type of the `until` function.
    *  - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
    */
-  def until(xxx: ???, yyy: ???)(zzz: ???): ??? = ???
+  @tailrec
+  def until[Type](guardPred: List[Type]=>Boolean, combineFn: List[Type]=>List[Type])(trees: List[Type]): List[Type] = {
+    if (guardPred(trees)) trees
+    else until(guardPred, combineFn) (combineFn(trees)) 
+  }
 
   /**
    * This function creates a code tree which is optimal to encode the text `chars`.
@@ -156,7 +188,8 @@ object Huffman {
    * The parameter `chars` is an arbitrary text. This function extracts the character
    * frequencies from that text and creates a code tree based on them.
    */
-  def createCodeTree(chars: List[Char]): CodeTree = ???
+  def createCodeTree(chars: List[Char]): CodeTree = until(singleton, combine) ( makeOrderedLeafList(times(chars)))  head
+  
 
   // Part 3: Decoding
 
