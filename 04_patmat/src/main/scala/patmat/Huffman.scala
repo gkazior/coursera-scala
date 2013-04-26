@@ -177,9 +177,9 @@ object Huffman {
    *  - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
    */
   @tailrec
-  def until[Type](guardPred: List[Type]=>Boolean, combineFn: List[Type]=>List[Type])(trees: List[Type]): List[Type] = {
+  def until[Type](guardPred: List[Type] => Boolean, combineFn: List[Type] => List[Type])(trees: List[Type]): List[Type] = {
     if (guardPred(trees)) trees
-    else until(guardPred, combineFn) (combineFn(trees)) 
+    else until(guardPred, combineFn)(combineFn(trees))
   }
 
   /**
@@ -188,8 +188,7 @@ object Huffman {
    * The parameter `chars` is an arbitrary text. This function extracts the character
    * frequencies from that text and creates a code tree based on them.
    */
-  def createCodeTree(chars: List[Char]): CodeTree = until(singleton, combine) ( makeOrderedLeafList(times(chars)))  head
-  
+  def createCodeTree(chars: List[Char]): CodeTree = until(singleton, combine)(makeOrderedLeafList(times(chars))) head
 
   // Part 3: Decoding
 
@@ -199,7 +198,24 @@ object Huffman {
    * This function decodes the bit sequence `bits` using the code tree `tree` and returns
    * the resulting list of characters.
    */
-  def decode(tree: CodeTree, bits: List[Bit]): List[Char] = ???
+
+  def decode(tree: CodeTree, bits: List[Bit]): List[Char] = {
+    def decodeHelper(rootTree: CodeTree, tree: CodeTree, bits: List[Bit], bitsPosition: Int, acc: List[Char]): List[Char] = {
+      //println("decodeHelper Tree: " + tree + " bits:" + bits + " acc:" + acc)
+      (bits, tree, rootTree == tree) match {
+        case (Nil          , fork: Fork, _) => throw new java.util.InputMismatchException("Bit sequence not complete at position: " + bitsPosition)
+        case (Nil          , leaf: Leaf, true ) => acc 
+        case (Nil          , leaf: Leaf, false) => leaf.char :: acc
+        case (bits         , leaf: Leaf, false) => decodeHelper(rootTree, rootTree  , bits     , bitsPosition    , leaf.char :: acc)
+        case (bits         , leaf: Leaf, true ) => decodeHelper(rootTree, rootTree  , bits.tail, bitsPosition + 1, leaf.char :: acc)
+        case (0 :: bitTail , fork: Fork, _    ) => decodeHelper(rootTree, fork.left , bitTail  , bitsPosition + 1, acc)
+        case (1 :: bitTail , fork: Fork, _    ) => decodeHelper(rootTree, fork.right, bitTail  , bitsPosition + 1, acc)
+        case (bit :: _, _, _) => throw new java.util.InputMismatchException("Invalid bit (must be one of 0,1) \"" + bit + "\" at position: " + bitsPosition)
+        case (_,_,_) => assert(false, "Invalid case"); Nil // If assertion raises then I was wrong  
+      }
+    }
+    decodeHelper(tree, tree, bits, 0, Nil) reverse // First position is 0 as in good languages like C ;-)
+  }
 
   /**
    * A Huffman coding tree for the French language.
@@ -225,7 +241,9 @@ object Huffman {
    * This function encodes `text` using the code tree `tree`
    * into a sequence of bits.
    */
-  def encode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+  def encode(tree: CodeTree)(text: List[Char]): List[Bit] = {
+    Nil
+  }
 
   // Part 4b: Encoding using code table
 
