@@ -33,16 +33,13 @@ object HuffmanPart2Ws {
   decode(huf1, List(0))                           //> res6: List[Char] = List(a)
   decode(huf1, List(1, 0, 1, 0))                  //> res7: List[Char] = List(a, a, a, a)
 
-
   decode(huf2, List(1))                           //> res8: List[Char] = List(b)
   decode(huf2, List(0))                           //> res9: List[Char] = List(a)
   decode(huf2, List(1, 0, 1, 0))                  //> res10: List[Char] = List(b, a, b, a)
 
-
   //decode(huf3, List(0)) //Bit sequence not complete at position: 1
-  
+
   decode(huf3, List(1, 0, 1, 0, 0, 1))            //> res11: List[Char] = List(b, c, a, b)
   decode(frenchCode, secret)                      //> res12: List[Char] = List(h, u, f, f, m, a, n, e, s, t, c, o, o, l)
-  
-  
- 
+
+}

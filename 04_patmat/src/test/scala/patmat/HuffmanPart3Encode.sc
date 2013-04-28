@@ -4,13 +4,13 @@ import patmat.Huffman._
 import patmat.MapUtils._
 import scala.annotation.tailrec
 object HuffmanPart3Encode {
-  val TRIVIAL = true  // trivial Huffman tree has only a root leaf
+  val TRIVIAL = true // trivial Huffman tree has only a root leaf
                                                   //> TRIVIAL  : Boolean = true
 
   def encodedChar(rootTree: CodeTree, tree: CodeTree, currentEncoded: List[Bit])(char: Char): List[Bit] = {
     (rootTree == tree, tree, chars(tree).contains(char)) match {
-      case (_ , _, false) => throw new RuntimeException("Change the exception class. Leaf does not contain a char! Invalid input? char: " + char);
-      case (true, (leaf: Leaf), true) => currentEncoded ::: List(0)
+      case (_, _, false)               => throw new RuntimeException("Change the exception class. Leaf does not contain a char! Invalid input? char: " + char);
+      case (true, (leaf: Leaf), true)  => currentEncoded ::: List(0)
       case (false, (leaf: Leaf), true) => currentEncoded
       case (_, (fork: Fork), true) =>
         if (chars(fork.left).contains(char)) encodedChar(rootTree, fork.left, currentEncoded ::: List(0))(char)
@@ -40,5 +40,5 @@ object HuffmanPart3Encode {
   encode(huf2)(string2Chars("aab"))               //> res1: List[patmat.Huffman.Bit] = List(0, 0, 1)
   decode(frenchCode, encode(frenchCode)(string2Chars("huffmanestcool")))
                                                   //> res2: List[Char] = List(h, u, f, f, m, a, n, e, s, t, c, o, o, l)
-  
+
 }

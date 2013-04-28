@@ -9,6 +9,8 @@ import scala.annotation.tailrec
  *
  */
 object Huffman {
+  val TRIVIAL_HT: Boolean = true  // Trivial Huffman tree is when the tree is leaf
+  val NORMAL_HT: Boolean = !TRIVIAL_HT // Normal tree has Fork in root
 
   /**
    * A huffman code is represented by a binary tree.
@@ -193,7 +195,8 @@ object Huffman {
   // Part 3: Decoding
 
   type Bit = Int
-
+  val TRIVIAL_TREE_CODE: Bit = 0
+  
   /**
    * This function decodes the bit sequence `bits` using the code tree `tree` and returns
    * the resulting list of characters.
@@ -244,16 +247,17 @@ object Huffman {
       acc ::: encodedChar(tree, tree, Nil)(char)
     }
     foreach[Char, List[Bit]](text, Nil)(collectEncodedChar)
-  } //> encode: (tree: patmat.Huffman.CodeTree)(text: List[Char])List[patmat.Huffma
-
+  } 
+  
+  
   private def encodedChar(rootTree: CodeTree, tree: CodeTree, currentEncoded: List[Bit])(char: Char): List[Bit] = {
     (rootTree == tree, tree, chars(tree).contains(char)) match {
-      case (_    , _           , false) => throw new java.util.InputMismatchException("Invalid input char: " + char)
-      case (true , leaf: Leaf  , true ) => currentEncoded ::: List(0)
-      case (false, leaf: Leaf  , true ) => currentEncoded
-      case (_    , fork: Fork  , true ) =>
-        if (chars(fork.left).contains(char)) encodedChar(rootTree, fork.left, currentEncoded ::: List(0))(char)
-        else encodedChar(rootTree, fork.right, currentEncoded ::: List(1))(char)
+      case (_          , _           , false) => throw new java.util.InputMismatchException("Invalid input char: " + char)
+      case (true       , leaf: Leaf  , true ) => currentEncoded ::: List(TRIVIAL_TREE_CODE)
+      case (false      , leaf: Leaf  , true ) => currentEncoded
+      case (_          , fork: Fork  , true ) =>
+        if (chars(fork.left).contains(char)) encodedChar(rootTree, fork.left , currentEncoded ::: List(0))(char)
+                                        else encodedChar(rootTree, fork.right, currentEncoded ::: List(1))(char)
       case (_, _, _) => assert(false, "case is not handled"); Nil // The compiler says not exhaustive for (_,_,true) but it is not true!
     }
   } 
@@ -266,7 +270,14 @@ object Huffman {
    * This function returns the bit sequence that represents the character `char` in
    * the code table `table`.
    */
-  def codeBits(table: CodeTable)(char: Char): List[Bit] = ???
+  @tailrec
+  def codeBits(table: CodeTable)(char: Char): List[Bit] = {
+    table match {
+      case Nil => Nil
+      case (char, code) :: tail => code
+      case _ :: tail => codeBits(tail) (char)
+    }
+  }
 
   /**
    * Given a code tree, create a code table which contains, for every character in the
@@ -276,14 +287,45 @@ object Huffman {
    * a valid code tree that can be represented as a code table. Using the code tables of the
    * sub-trees, think of how to build the code table for the entire tree.
    */
-  def convert(tree: CodeTree): CodeTable = ???
-
+  def convert(tree: CodeTree): CodeTable = {
+    def convertHelper(rootTree:CodeTree, tree: CodeTree, codePart: List[Bit], acc: CodeTable): CodeTable = {
+      (rootTree == tree, tree) match {
+         case (true , leaf: Leaf) => (leaf.char, List(TRIVIAL_TREE_CODE)) :: acc
+         case (false, leaf: Leaf) => (leaf.char, codePart) :: acc
+         case (_    , fork: Fork) => convertHelper(rootTree, fork.left , codePart ::: List(0), acc) :::
+                                     convertHelper(rootTree, fork.right, codePart ::: List(1), Nil)
+         case (_,_) => assert(false, "Invalid case"); Nil // I have to study match since this is again when the compiler complains about not exhaustive match
+      }
+    }
+    convertHelper(tree, tree, Nil, Nil)
+  }
   /**
    * This function takes two code tables and merges them into one. Depending on how you
    * use it in the `convert` method above, this merge method might also do some transformations
    * on the two parameter code tables.
-   */
-  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = ???
+   */ 
+  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = {
+    @tailrec
+    def mergeCodePair(codePair: (Char, List[Bit]), b: CodeTable, acc: CodeTable): CodeTable =  {
+      b match {
+        case Nil => acc
+        case (codePair._1, codePair._2) :: tail => acc
+        case (codePair._1, badCode) :: tail => throw new IllegalArgumentException("The char '" + codePair._1 + "' coded in a different way in the merged lists. Codes: " + badCode + " " + codePair._2)
+        case (badChar, codePair._2) :: tail => throw new IllegalArgumentException("Different chars coded by the same sequnce: " + codePair._2 + ". Chars: '" + badChar + "' '" + codePair._1 + "'")
+        case head::tail => mergeCodePair(codePair, tail, acc)
+      }
+    }
+    @tailrec
+    def mergeTablesHelper(a: CodeTable, b: CodeTable, acc: CodeTable): CodeTable = {
+      a match {
+        case Nil => acc
+        case head :: tail =>  mergeTablesHelper(tail, b, mergeCodePair(head, b, acc))
+      } 
+    }
+    // take each codePair from the a 
+    // try to add it to the b
+    mergeTablesHelper(a,b,b)
+  }
 
   /**
    * This function encodes `text` according to the code tree `tree`.
@@ -291,5 +333,24 @@ object Huffman {
    * To speed up the encoding process, it first converts the code tree to a code table
    * and then uses it to perform the actual encoding.
    */
-  def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+  def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = {
+    val quickTable = convert(tree)
+    @tailrec
+    def findCode(charToFind: Char, table: CodeTable): List[Bit] = {
+      val TheCharToFind = charToFind // Have to put the value in upper case to make match possible!!!
+      table match {
+        case Nil => throw new IllegalArgumentException("Cannot find the code for the char '" + charToFind + "'")
+        case (TheCharToFind, charCode) :: tableTail => charCode
+        case head :: tableTail => findCode(charToFind, tableTail)
+      }
+    }
+    @tailrec
+    def quickEncodeHelper(table: CodeTable, acc: List[Bit])(text: List[Char]): List[Bit] = {
+      text match {
+        case Nil => acc
+        case theChar :: textTail => quickEncodeHelper(table, acc ::: findCode(theChar, quickTable))(textTail)
+      }
+    }
+    quickEncodeHelper(quickTable, Nil)(text);
+  }
 }

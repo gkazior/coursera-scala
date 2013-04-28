@@ -42,9 +42,19 @@ class HuffmanSuite extends FunSuite {
   test("decode and encode a very short text should be identity") {
     new TestTrees {
       assert(decode(t1, encode(t1)("ab".toList)) === "ab".toList)
+      assert(decode(t2, encode(t2)("abd".toList)) === "abd".toList)
     }
   }
 
+ test("quickEncode and encode should be the same when we are not talking about the speed") {
+    new TestTrees {
+      assert(decode(t1,      encode(t1)("ab".toList)) 
+         === decode(t1, quickEncode(t1)("ab".toList)))
+      assert(decode(t2,      encode(t2)("abd".toList)) 
+         === decode(t2, quickEncode(t2)("abd".toList)))
+    }
+  }
+ 
   test("singleton") {
     new TestTrees {
 
