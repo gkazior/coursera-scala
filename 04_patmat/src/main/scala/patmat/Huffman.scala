@@ -126,7 +126,7 @@ object Huffman {
   def singleton(trees: List[CodeTree]): Boolean = {
     trees match {
       // interesting thing - I do not have to guard against empty list:  case Nil => false
-      case leaf :: Nil => true
+      case head :: Nil => true
       case _ => false
     }
   }
@@ -198,7 +198,6 @@ object Huffman {
    * This function decodes the bit sequence `bits` using the code tree `tree` and returns
    * the resulting list of characters.
    */
-
   def decode(tree: CodeTree, bits: List[Bit]): List[Char] = {
     def decodeHelper(rootTree: CodeTree, tree: CodeTree, bits: List[Bit], bitsPosition: Int, acc: List[Char]): List[Char] = {
       //println("decodeHelper Tree: " + tree + " bits:" + bits + " acc:" + acc)
@@ -212,11 +211,10 @@ object Huffman {
         case (1 :: bitTail , fork: Fork, _    ) => decodeHelper(rootTree, fork.right, bitTail  , bitsPosition + 1, acc)
         case (bit :: _, _, _) => throw new java.util.InputMismatchException("Invalid bit (must be one of 0,1) \"" + bit + "\" at position: " + bitsPosition)
         case (_,_,_) => assert(false, "Invalid case"); Nil // If assertion raises then I was wrong  
-      }
+      }        
     }
     decodeHelper(tree, tree, bits, 0, Nil) reverse // First position is 0 as in good languages like C ;-)
   }
-
   /**
    * A Huffman coding tree for the French language.
    * Generated from the data given at
@@ -233,7 +231,7 @@ object Huffman {
   /**
    * Write a function that returns the decoded secret
    */
-  def decodedSecret: List[Char] = ???
+  def decodedSecret: List[Char] = decode(frenchCode, secret)
 
   // Part 4a: Encoding using Huffman tree
 
@@ -242,8 +240,23 @@ object Huffman {
    * into a sequence of bits.
    */
   def encode(tree: CodeTree)(text: List[Char]): List[Bit] = {
-    Nil
-  }
+    def collectEncodedChar(char: Char, acc: List[Bit]): List[Bit] = {
+      acc ::: encodedChar(tree, tree, Nil)(char)
+    }
+    foreach[Char, List[Bit]](text, Nil)(collectEncodedChar)
+  } //> encode: (tree: patmat.Huffman.CodeTree)(text: List[Char])List[patmat.Huffma
+
+  private def encodedChar(rootTree: CodeTree, tree: CodeTree, currentEncoded: List[Bit])(char: Char): List[Bit] = {
+    (rootTree == tree, tree, chars(tree).contains(char)) match {
+      case (_    , _           , false) => throw new java.util.InputMismatchException("Invalid input char: " + char)
+      case (true , leaf: Leaf  , true ) => currentEncoded ::: List(0)
+      case (false, leaf: Leaf  , true ) => currentEncoded
+      case (_    , fork: Fork  , true ) =>
+        if (chars(fork.left).contains(char)) encodedChar(rootTree, fork.left, currentEncoded ::: List(0))(char)
+        else encodedChar(rootTree, fork.right, currentEncoded ::: List(1))(char)
+      case (_, _, _) => assert(false, "case is not handled"); Nil // The compiler says not exhaustive for (_,_,true) but it is not true!
+    }
+  } 
 
   // Part 4b: Encoding using code table
 

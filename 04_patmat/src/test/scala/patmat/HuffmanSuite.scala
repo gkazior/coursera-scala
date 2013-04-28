@@ -51,8 +51,8 @@ class HuffmanSuite extends FunSuite {
       assert(singleton(Nil) === false)
       assert(singleton(List(Leaf('a', 1))) === true)
       assert(singleton(List(Leaf('a', 1), Leaf('b', 1))) === false)
-      assert(singleton(List(t1)) === false)
-      assert(singleton(List(t2)) === false)
+      assert(singleton(List(t1)) === true)
+      assert(singleton(List(t2)) === true)
       
     }
   }

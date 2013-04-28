@@ -44,5 +44,5 @@ object HuffmanPart2Ws {
   decode(huf3, List(1, 0, 1, 0, 0, 1))            //> res11: List[Char] = List(b, c, a, b)
   decode(frenchCode, secret)                      //> res12: List[Char] = List(h, u, f, f, m, a, n, e, s, t, c, o, o, l)
   
-
-}
+  
+ 
