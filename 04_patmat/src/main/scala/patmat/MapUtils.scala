@@ -1,12 +1,12 @@
 package patmat
 
 object MapUtils {
-  def NEVER[Type](arg: Type): Boolean = false
-  def ALWAYS[Type](arg: Type): Boolean = true
+  def predNEVER[Type](arg: Type): Boolean = false
+  def predALWAYS[Type](arg: Type): Boolean = true
 
-  def NEVER2[Type, AccType](arg1: Type, arg2: AccType): Boolean = false
+  def predNEVER2[Type, AccType](arg1: Type, arg2: AccType): Boolean = false
 
-  def ALWAYS2[Type, AccType](arg1: Type, arg2: AccType): Boolean = true
+  def predALWAYS2[Type, AccType](arg1: Type, arg2: AccType): Boolean = true
 
   /**
    * foreach traverses for each element of the list
@@ -18,7 +18,7 @@ object MapUtils {
    *
    * //computes the sum, stops then sum is greater than 5
    * foreach[Int, Int](l2, 0 //
-   * , collectPred = ALWAYS //
+   * , collectPred = predALWAYS //
    * , stopPred = (x, acc) => acc > 5) ((x, acc) => x + acc)
    * //> res6: Int = 6
    *
@@ -33,8 +33,8 @@ object MapUtils {
   def foreach[Type, AccType](
     list: List[Type] // foreach traverses for each element of the list
     , acc: => AccType = Nil // Starts with the acc
-    , collectPred: => Type => Boolean = ALWAYS[Type]_ // foreach collects the element when collectPred is true
-    , stopPred: (Type, AccType) => Boolean = NEVER2[Type, AccType]_ // stop traversing when stopPred returns true
+    , collectPred: => Type => Boolean = predALWAYS[Type]_ // foreach collects the element when collectPred is true
+    , stopPred: (Type, AccType) => Boolean = predNEVER2[Type, AccType]_ // stop traversing when stopPred returns true
     )(collectFn: => (Type, AccType) => AccType // then it accumulates the result using the collectFn
     ): AccType = {
 
