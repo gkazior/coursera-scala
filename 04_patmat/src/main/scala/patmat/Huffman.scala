@@ -9,8 +9,6 @@ import scala.annotation.tailrec
  *
  */
 object Huffman {
-  val TRIVIAL_HT: Boolean = true  // Trivial Huffman tree is when the tree is leaf
-  val NORMAL_HT: Boolean = !TRIVIAL_HT // Normal tree has Fork in root
 
   /**
    * A huffman code is represented by a binary tree.
@@ -196,7 +194,8 @@ object Huffman {
 
   type Bit = Int
   val TRIVIAL_TREE_CODE: Bit = 0
-  
+  val TRIVIAL_TREE = true // Trivial Huffman tree is when the tree is leaf
+  val NORMAL_TREE = !TRIVIAL_TREE  // Normal tree has Fork in root
   /**
    * This function decodes the bit sequence `bits` using the code tree `tree` and returns
    * the resulting list of characters.
