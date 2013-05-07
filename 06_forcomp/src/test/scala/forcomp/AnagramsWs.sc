@@ -37,12 +37,13 @@ object AnagramsWs {
 
   subtractPair(('a', 3), List(('b',4),('a',5)))   //> res1: List[(Char, Int)] = List((b,4), (a,2))
   subtractPair(('a', 5), List(('b',4),('a',5)))   //> res2: List[(Char, Int)] = List((b,4))
+  subtractPair(('a', 0), List(('b',4),('a',5)))   //> res3: List[(Char, Int)] = List((b,4), (a,5))
  // subtractPair(('a', 6), List(('b',4),('a',5)))
 
     val lard = List(('a', 1), ('d', 1), ('l', 1), ('r', 1))
                                                   //> lard  : List[(Char, Int)] = List((a,1), (d,1), (l,1), (r,1))
     val r = List(('r', 1))                        //> r  : List[(Char, Int)] = List((r,1))
     val lad = List(('a', 1), ('d', 1), ('l', 1))  //> lad  : List[(Char, Int)] = List((a,1), (d,1), (l,1))
-    subtract(lard, r)                             //> res3: forcomp.Anagrams.Occurrences = List()
+    subtract(lard, r)                             //> res4: forcomp.Anagrams.Occurrences = List((a,1), (d,1), (l,1))
 
 }
