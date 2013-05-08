@@ -127,8 +127,25 @@ object Anagrams {
    *  Note that the order of the occurrence list subsets does not matter -- the subsets
    *  in the example above could have been displayed in some other order.
    */
-  def combinations(occurrences: Occurrences): List[Occurrences] = ???
+  def combinations(occurrences: Occurrences): List[Occurrences] = {
+    def loopOverPair(pair: (Char, Int), theList: Occurrences): Seq[Occurrences] = {
+      val (char, times) = pair
+      for (i <- 0 to times) yield subtractPair((char, i), theList)
 
+    }
+    def combinationsHelper(pair: (Char, Int), leftPairs: Occurrences, acc: Set[Occurrences]): Set[Occurrences] = {
+      val currentComb = acc ++ (for (item <- acc) yield loopOverPair(pair, item)).flatten
+      leftPairs match {
+        case Nil          => currentComb
+        case head :: tail => combinationsHelper(head, tail, currentComb)
+      }
+
+    }
+    occurrences match {
+      case Nil          => List(Nil)
+      case head :: tail => combinationsHelper(head, tail, Set(occurrences)).toList
+    }
+  }
   /**
    * Subtracts occurrence list `y` from occurrence list `x`.
    *
@@ -185,6 +202,46 @@ object Anagrams {
    *
    *  Note: There is only one anagram of an empty sentence.
    */
-  def sentenceAnagrams(sentence: Sentence): List[Sentence] = ???
+  def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
+    val dictOcr = dictionaryByOccurrences
+
+    /*
+     returns accumulated sentences for the sentence given by occurrences in ocrSentence
+     tries the ocrToCheck and if not possible the rest - ocrToCheckRest
+     @param ocrPossibleWords - ocrs to check
+     @param ocrSentence - ocr of the sentence to check
+     @param currentSentence - accumulator for the checked sentence
+     @param sentencesAcc - accumulator for the sentences list
+    */
+    def getSentences(ocrPossibleWords: List[Occurrences], ocrSentence: Occurrences, currentSentence: Sentence, sentencesAcc: List[Sentence], calls: Int): List[Sentence] = {
+      ocrPossibleWords match {
+        case Nil => sentencesAcc
+        case ocrWord :: ocrTail => {
+          ocrSentence match {
+            case Nil => currentSentence :: sentencesAcc
+            case _ => {
+              val acc0 = getSentences(ocrTail, ocrSentence, currentSentence, sentencesAcc, calls + 1)
+              if (dictOcr.isDefinedAt(ocrWord)) {
+                val restSentence = subtract(ocrSentence, ocrWord)
+                dictOcr(ocrWord).foldLeft(acc0)(
+                  (acc, word) => acc ++ getSentences(combinations(restSentence), restSentence, word :: currentSentence, sentencesAcc, calls + 1))
+              } else
+                acc0
+            }
+          }
+        }
+      }
+    }
+
+    sentence match {
+      case Nil => List(Nil)
+      case _ => {
+        val bigWord: Word = sentence.reduce(_ + _)
+        val ocrSentence = wordOccurrences(bigWord)
+
+        getSentences(combinations(ocrSentence), ocrSentence, Nil, Nil, 0)
+      }
+    }
+  }
 
 }
