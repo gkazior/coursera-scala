@@ -31,15 +31,6 @@ object Anagrams {
    */
   val dictionary: List[Word] = loadDictionary
 
-  def addPair(pair: (Char, Int), list: List[(Char, Int)]): List[(Char, Int)] = {
-    list match {
-      case Nil => List(pair)
-      case (char, times) :: tail =>
-        if (char == pair._1) (char, pair._2 + times) :: tail
-        else (char, times) :: addPair(pair, tail)
-    }
-  }
-
   def subtractPair(pair: (Char, Int), list: List[(Char, Int)]): List[(Char, Int)] = {
     val TheChar = pair._1
     val TheTimes = pair._2
@@ -59,10 +50,11 @@ object Anagrams {
    */
   def wordOccurrences(w: Word): Occurrences = {
     def lessCharFirst(pairA: (Char, Int), pairB: (Char, Int)) = pairA._1 < pairB._1
-    val letterList = w.toList collect { case x => x.toLower } filter ((x) => x.isLetterOrDigit)
-    val acc0 = List[(Char, Int)]()
-    val res = letterList.foldLeft(acc0)((acc, x) => addPair((x, 1), acc))
-    res.sortWith(lessCharFirst)
+    
+    val letterList = w.toLowerCase().toList filter (_.isLetterOrDigit)
+    
+   (letterList groupBy (x=>x) map (x => (x._1, x._2.length))).toList.sortWith(lessCharFirst)
+
   }
 
   /** Converts a sentence into its character occurrence list. */

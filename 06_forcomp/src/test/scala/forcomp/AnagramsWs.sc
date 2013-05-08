@@ -3,8 +3,14 @@ package forcomp
 import forcomp.Anagrams._
 
 object AnagramsWs {
-
-  wordOccurrences("Robert")                       //> res0: forcomp.Anagrams.Occurrences = List((b,1), (e,1), (o,1), (r,2), (t,1))
+    val w = "Robert"                              //> w  : String = Robert
+  val letterList = w.toList collect { case x => x.toLower } filter ((x) => x.isLetterOrDigit)
+                                                  //> letterList  : List[Char] = List(r, o, b, e, r, t)
+  
+  (letterList groupBy (x=>x) map (x => (x._1, x._2.length))).toList
+                                                  //> res0: List[(Char, Int)] = List((e,1), (t,1), (b,1), (r,2), (o,1))
+  
+  wordOccurrences("Robert")                       //> res1: forcomp.Anagrams.Occurrences = List((b,1), (e,1), (o,1), (r,2), (t,1))
                                                   //| 
   val a0 = wordOccurrences("wwa")                 //> a0  : forcomp.Anagrams.Occurrences = List((a,1), (w,2))
   val a1 = wordOccurrences("asdf")                //> a1  : forcomp.Anagrams.Occurrences = List((a,1), (d,1), (f,1), (s,1))
@@ -14,15 +20,15 @@ object AnagramsWs {
   val a4 = wordOccurrences("aaAsdfA \n .,")       //> a4  : forcomp.Anagrams.Occurrences = List((a,4), (d,1), (f,1), (s,1))
   val a10 = wordOccurrences("wwwwaa")             //> a10  : forcomp.Anagrams.Occurrences = List((a,2), (w,4))
 
-  subtractPair(('a', 3), List(('b', 4), ('a', 5)))//> res1: List[(Char, Int)] = List((b,4), (a,2))
-  subtractPair(('a', 5), List(('b', 4), ('a', 5)))//> res2: List[(Char, Int)] = List((b,4))
-  subtractPair(('a', 0), List(('b', 4), ('a', 5)))//> res3: List[(Char, Int)] = List((b,4), (a,5))
+  subtractPair(('a', 3), List(('b', 4), ('a', 5)))//> res2: List[(Char, Int)] = List((b,4), (a,2))
+  subtractPair(('a', 5), List(('b', 4), ('a', 5)))//> res3: List[(Char, Int)] = List((b,4))
+  subtractPair(('a', 0), List(('b', 4), ('a', 5)))//> res4: List[(Char, Int)] = List((b,4), (a,5))
   // subtractPair(('a', 6), List(('b',4),('a',5)))
 
-  subtract(a10, a0)                               //> res4: forcomp.Anagrams.Occurrences = List((a,1), (w,2))
+  subtract(a10, a0)                               //> res5: forcomp.Anagrams.Occurrences = List((a,1), (w,2))
 
-  a0                                              //> res5: forcomp.Anagrams.Occurrences = List((a,1), (w,2))
-  combinations(a0)                                //> res6: List[forcomp.Anagrams.Occurrences] = List(List((a,1)), List((a,1), (w,
+  a0                                              //> res6: forcomp.Anagrams.Occurrences = List((a,1), (w,2))
+  combinations(a0)                                //> res7: List[forcomp.Anagrams.Occurrences] = List(List((a,1)), List((a,1), (w,
                                                   //| 1)), List((w,2)), List(), List((w,1)), List((a,1), (w,2)))
 
   def sentenceAnagrams2(sentence: Sentence): List[Sentence] = {
@@ -73,21 +79,16 @@ object AnagramsWs {
                                                   //| ms.Sentence]
   val dictionary = List("mama", "tata", "a")      //> dictionary  : List[String] = List(mama, tata, a)
   dictionary map ((x) => (x, wordOccurrences(x))) groupBy ((x) => x._2)
-                                                  //> res7: scala.collection.immutable.Map[forcomp.Anagrams.Occurrences,List[(Str
+                                                  //> res8: scala.collection.immutable.Map[forcomp.Anagrams.Occurrences,List[(Str
                                                   //| ing, forcomp.Anagrams.Occurrences)]] = Map(List((a,1)) -> List((a,List((a,1
                                                   //| )))), List((a,2), (t,2)) -> List((tata,List((a,2), (t,2)))), List((a,2), (m
                                                   //| ,2)) -> List((mama,List((a,2), (m,2)))))
   
-  lazy val dictionaryByOccurrences2: Map[Occurrences, List[Word]] = {
-    val acc0 = Map[Occurrences, List[Word]]()
-    dictionary.foldLeft(acc0)((acc, word) => addNewOccurrence((wordOccurrences(word), word), acc))
-    //dictionary groupBy
-  }                                               //> dictionaryByOccurrences2: => Map[forcomp.Anagrams.Occurrences,List[forcomp.
-                                                  //| Anagrams.Word]]
+  
 
   //val wan = wordAnagrams("eat")
   val ym = sentenceAnagrams2(List("Yes", "man"))  //> ym  : List[forcomp.Anagrams.Sentence] = List()
-  val an = sentenceAnagrams2(List("eat"))         //> an  : List[forcomp.Anagrams.Sentence] = List(List(tea), List(eat), List(ate
+  val an = sentenceAnagrams2(List("eat"))         //> an  : List[forcomp.Anagrams.Sentence] = List(List(ate), List(eat), List(tea
                                                   //| ))
 
 }
