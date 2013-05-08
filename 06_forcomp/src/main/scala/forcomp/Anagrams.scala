@@ -72,11 +72,6 @@ object Anagrams {
     wordOccurrences(bigWord)
   }
 
-  def addNewOccurrence(pair: (Occurrences, Word), theMap: Map[Occurrences, List[Word]]): Map[Occurrences, List[Word]] = {
-    val occurence = pair._1
-    val newList = pair._2 :: (theMap get occurence getOrElse (Nil))
-    theMap + (occurence -> newList)
-  }
 
   /**
    * The `dictionaryByOccurrences` is a `Map` from different occurrences to a sequence of all
@@ -96,7 +91,7 @@ object Anagrams {
    */
   lazy val dictionaryByOccurrences: Map[Occurrences, List[Word]] = {
     val acc0 = Map[Occurrences, List[Word]]()
-    dictionary.foldLeft(acc0)((acc, word) => addNewOccurrence((wordOccurrences(word), word), acc))
+    dictionary map ((x) => (x, wordOccurrences(x))) groupBy ((x) => x._2) map ((x) => (x._1 -> x._2.unzip._1))
   }
 
   /** Returns all the anagrams of a given word. */

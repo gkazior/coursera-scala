@@ -71,7 +71,19 @@ object AnagramsWs {
     }
   }                                               //> sentenceAnagrams2: (sentence: forcomp.Anagrams.Sentence)List[forcomp.Anagra
                                                   //| ms.Sentence]
-
+  val dictionary = List("mama", "tata", "a")      //> dictionary  : List[String] = List(mama, tata, a)
+  dictionary map ((x) => (x, wordOccurrences(x))) groupBy ((x) => x._2)
+                                                  //> res7: scala.collection.immutable.Map[forcomp.Anagrams.Occurrences,List[(Str
+                                                  //| ing, forcomp.Anagrams.Occurrences)]] = Map(List((a,1)) -> List((a,List((a,1
+                                                  //| )))), List((a,2), (t,2)) -> List((tata,List((a,2), (t,2)))), List((a,2), (m
+                                                  //| ,2)) -> List((mama,List((a,2), (m,2)))))
+  
+  lazy val dictionaryByOccurrences2: Map[Occurrences, List[Word]] = {
+    val acc0 = Map[Occurrences, List[Word]]()
+    dictionary.foldLeft(acc0)((acc, word) => addNewOccurrence((wordOccurrences(word), word), acc))
+    //dictionary groupBy
+  }                                               //> dictionaryByOccurrences2: => Map[forcomp.Anagrams.Occurrences,List[forcomp.
+                                                  //| Anagrams.Word]]
 
   //val wan = wordAnagrams("eat")
   val ym = sentenceAnagrams2(List("Yes", "man"))  //> ym  : List[forcomp.Anagrams.Sentence] = List()
