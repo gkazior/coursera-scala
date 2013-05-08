@@ -91,7 +91,7 @@ object Anagrams {
    */
   lazy val dictionaryByOccurrences: Map[Occurrences, List[Word]] = {
     val acc0 = Map[Occurrences, List[Word]]()
-    dictionary map ((x) => (x, wordOccurrences(x))) groupBy ((x) => x._2) map ((x) => (x._1 -> x._2.unzip._1))
+    dictionary map (x => (x, wordOccurrences(x))) groupBy (x => x._2) map (x => (x._1 -> x._2.unzip._1))
   }
 
   /** Returns all the anagrams of a given word. */
