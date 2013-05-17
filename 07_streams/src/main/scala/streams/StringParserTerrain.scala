@@ -54,7 +54,7 @@ trait StringParserTerrain extends GameDef {
    */
   def terrainFunction(levelVector: Vector[Vector[Char]]): Pos => Boolean = {
     def helperFun(pos: Pos): Boolean = {
-      // TODO: with default value will be fine here for nonexising indexes. Maybe override the ()
+      // TODO: vector with default value (ex levelVector withDefaultValue '?') will be fine here for nonexising indexes. Maybe override the () operator
       if (levelVector.isDefinedAt(pos.x) && levelVector(pos.x).isDefinedAt(pos.y))
         levelVector(pos.x)(pos.y) match {
           case 'o' => true
@@ -74,7 +74,15 @@ trait StringParserTerrain extends GameDef {
    * Hint: you can use the functions `indexWhere` and / or `indexOf` of the
    * `Vector` class
    */
-  def findChar(c: Char, levelVector: Vector[Vector[Char]]): Pos = ???
+  def findChar(c: Char, levelVector: Vector[Vector[Char]]): Pos = {
+    val foundPosition = for {
+      xIdx <- levelVector.indices
+      yIdx <- levelVector(xIdx).indices
+      if levelVector(xIdx)(yIdx) == c
+    } yield Pos(xIdx, yIdx)
+    if (foundPosition.size == 0) throw new java.lang.IllegalStateException("Invalid map? Cannot find char " + c + " on the terrain map");
+    foundPosition(0)
+  }
 
   private lazy val vector: Vector[Vector[Char]] =
     Vector(level.split("\n").map(str => Vector(str: _*)): _*)

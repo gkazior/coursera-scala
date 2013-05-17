@@ -11,7 +11,7 @@ object BloxorzWs {
     def dy(d: Int) = copy(y = y + d)
   }
   val level: String =
-        """ST
+    """ST
           |oo
           |oo""".stripMargin                      //> level  : String = ST
                                                   //| oo
@@ -20,39 +20,32 @@ object BloxorzWs {
   val levelVector = Vector(level.split("\n").map(str => Vector(str: _*)): _*)
                                                   //> levelVector  : scala.collection.immutable.Vector[scala.collection.immutable.
                                                   //| Vector[Char]] = Vector(Vector(S, T), Vector(o, o), Vector(o, o))
-  
-  class Problem {
 
-    def terrainFunction(levelVector: Vector[Vector[Char]]): Pos => Boolean = {
-      def helperFun(pos: Pos): Boolean = {
-        // TODO: with default value will be fine here for nonexising indexes. Maybe override the ()
-        if (levelVector.isDefinedAt(pos.x) && levelVector(pos.x).isDefinedAt(pos.y))
-          levelVector(pos.x)(pos.y) match {
-          case 'o' => true
-          case 'T' => true
-          case 'S' => true
-          case _ => false
-          }
-        else false
-      }
-      helperFun
+  class Problem {
+    def findChar(c: Char, levelVector: Vector[Vector[Char]]): Pos = {
+      val foundPosition = for {
+        xIdx <- (0 to levelVector.size - 1)
+        yIdx <- (0 to levelVector(xIdx).size - 1)
+        if levelVector(xIdx)(yIdx) == c
+      } yield Pos(xIdx, yIdx)
+      if (foundPosition.size == 0) throw new java.lang.IllegalStateException("Invalid map? Cannot find char " + c + " on the terrain map");
+      foundPosition(0)
     }
   }
-  val problem = new Problem                       //> problem  : streams.BloxorzWs.Problem = streams.BloxorzWs$$anonfun$main$1$Pr
-                                                  //| oblem$1@754e3d8f
-  
-  val v = Vector(0,1,2) updated (2,5)             //> v  : scala.collection.immutable.Vector[Int] = Vector(0, 1, 5)
-  val levelVectorWithDefault = levelVector        //> levelVectorWithDefault  : scala.collection.immutable.Vector[scala.collectio
-                                                  //| n.immutable.Vector[Char]] = Vector(Vector(S, T), Vector(o, o), Vector(o, o)
-                                                  //| )
-  
-  val terrainFunction = problem.terrainFunction(levelVector)
-                                                  //> terrainFunction  : streams.BloxorzWs.Pos => Boolean = <function1>
-  
-  terrainFunction(Pos(1,2))                       //> res0: Boolean = false
-  terrainFunction(Pos(0,0))                       //> res1: Boolean = true
+  val problem = new Problem                       //> problem  : streams.BloxorzWs.Problem = streams.BloxorzWs$$anonfun$main$1$Pro
+                                                  //| blem$1@374fa566
 
-  
+  val v = Vector(0, 1, 2) updated (2, 5)          //> v  : scala.collection.immutable.Vector[Int] = Vector(0, 1, 5)
+
+  //problem.findChar('T', levelVector)
+
+  levelVector(0).indexOf('S')                     //> res0: Int = 0
+
+  //val terrainFunction = problem.terrainFunction(levelVector)
+
+  //terrainFunction(Pos(1,2))
+  //terrainFunction(Pos(0,0))
+
   /**
    * This method returns terrain function that represents the terrain
    * in `levelVector`. The vector contains parsed version of the `level`
