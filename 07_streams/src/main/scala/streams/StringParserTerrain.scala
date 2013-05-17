@@ -75,13 +75,9 @@ trait StringParserTerrain extends GameDef {
    * `Vector` class
    */
   def findChar(c: Char, levelVector: Vector[Vector[Char]]): Pos = {
-    val foundPosition = for {
-      xIdx <- levelVector.indices
-      yIdx <- levelVector(xIdx).indices
-      if levelVector(xIdx)(yIdx) == c
-    } yield Pos(xIdx, yIdx)
-    if (foundPosition.size == 0) throw new java.lang.IllegalStateException("Invalid map? Cannot find char " + c + " on the terrain map");
-    foundPosition(0)
+    val xIdx = levelVector indexWhere (_.contains(c))
+    if (xIdx < 0) throw new java.lang.IllegalStateException("Invalid map? Cannot find char " + c + " on the terrain map");
+    Pos(xIdx, levelVector(xIdx).indexOf(c))
   }
 
   private lazy val vector: Vector[Vector[Char]] =

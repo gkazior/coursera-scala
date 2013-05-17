@@ -33,13 +33,17 @@ object BloxorzWs {
     }
   }
   val problem = new Problem                       //> problem  : streams.BloxorzWs.Problem = streams.BloxorzWs$$anonfun$main$1$Pro
-                                                  //| blem$1@374fa566
+                                                  //| blem$1@4df3e7e8
 
   val v = Vector(0, 1, 2) updated (2, 5)          //> v  : scala.collection.immutable.Vector[Int] = Vector(0, 1, 5)
 
   //problem.findChar('T', levelVector)
-
-  levelVector(0).indexOf('S')                     //> res0: Int = 0
+   v.indices                                      //> res0: scala.collection.immutable.Range = Range(0, 1, 2)
+   
+   for (i <- v.indices) {println (i)}             //> 0
+                                                  //| 1
+                                                  //| 2
+  //levelVector.takeRight(n).indexOf('S')
 
   //val terrainFunction = problem.terrainFunction(levelVector)
 
