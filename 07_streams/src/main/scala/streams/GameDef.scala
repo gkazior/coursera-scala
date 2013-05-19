@@ -96,7 +96,7 @@ trait GameDef {
     // checks the requirement mentioned above
     require(b1.x <= b2.x && b1.y <= b2.y, "Invalid block position: b1=" + b1 + ", b2=" + b2)
 
-    override def toString() = "B:" + b1.x + ":" + b1.y + ":" + b2.x + ":" + b2.y + "\n" 
+    override def toString() = " B(" + b1.x + ":" + b1.y + ":" + b2.x + ":" + b2.y + ")" 
     /**
      * Returns a block where the `x` coordinates of `b1` and `b2` are
      * changed by `d1` and `d2`, respectively.

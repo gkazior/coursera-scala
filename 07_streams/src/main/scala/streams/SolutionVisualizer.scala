@@ -25,8 +25,10 @@ trait SolutionVisualizer extends GameDef with Solver with StringParserTerrain {
     }
     println()
   }
-
-  def displaySolution(): Unit = {
+  
+  def displaySolution(): Unit = displaySolution(solution)
+  
+  def displaySolution(solution: List[Move]): Unit = {
     println("Visualizing solution found for game " + this.getClass().getName())
     displayStatus(solution.foldLeft(startBlock)((block, move) => {
       displayStatus(block);

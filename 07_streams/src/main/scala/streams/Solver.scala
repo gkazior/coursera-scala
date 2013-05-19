@@ -29,8 +29,8 @@ trait Solver extends GameDef {
    * that are inside the terrain.
    */
   def neighborsWithHistory(b: Block, history: List[Move]): Stream[(Block, List[Move])] = {
-    def nHelper(legalNeigbors: List[(Block, Move)], history: List[Move]): Stream[(Block, List[Move])] = {
-      legalNeigbors match {
+    def nHelper(theLegalNeigbors: List[(Block, Move)], history: List[Move]): Stream[(Block, List[Move])] = {
+      theLegalNeigbors match {
         case Nil                  => Stream.empty
         case headNeighbor :: tail => (headNeighbor._1, headNeighbor._2 :: history) #:: nHelper(tail, history)
       }
@@ -70,16 +70,30 @@ trait Solver extends GameDef {
    * of different paths - the implementation should naturally
    * construct the correctly sorted stream.
    */
-  def from(initial: Stream[(Block, List[Move])],
-           explored: Set[Block]): Stream[(Block, List[Move])] = {
+  def from2(initial: Stream[(Block, List[Move])],
+            explored: Set[Block]): Stream[(Block, List[Move])] = {
     initial match {
       case Stream.Empty => Stream.empty
       case initialHead #:: tail => {
-
-        val newNeighbors = neighborsWithHistory(initialHead._1, initialHead._2) filter (neighbor => !explored.contains(neighbor._1))
+        val newNeighbors = newNeighborsOnly(neighborsWithHistory(initialHead._1, initialHead._2), explored)
+        //println("from for: " + initialHead._2 + " new n: " + newNeighbors)
         val generated = newNeighbors #::: from(tail, explored ++ (newNeighbors map (_._1)))
         generated #::: from(generated, explored ++ (generated map (_._1)))
       }
+    }
+  }
+  def from(initial: Stream[(Block, List[Move])],
+           explored: Set[Block]): Stream[(Block, List[Move])] = {
+    if (initial == Stream.Empty) Stream.empty
+    else {
+      val more = for {
+        item <- initial
+        next <- newNeighborsOnly(neighborsWithHistory(item._1, item._2), explored)
+
+      } yield next
+      //println("FROM for: " + initial + " more: " + (more map (_._2)).toList )
+      initial #::: from(more, explored ++ (more map (_._1)))
+
     }
   }
 
@@ -104,6 +118,6 @@ trait Solver extends GameDef {
    */
   lazy val solution: List[Move] = pathsToGoal match {
     case Stream.Empty      => Nil
-    case headPath #:: tail => headPath._2.toList
+    case headPath #:: tail => headPath._2.toList.reverse
   }
 }
