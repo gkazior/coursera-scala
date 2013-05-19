@@ -70,18 +70,6 @@ trait Solver extends GameDef {
    * of different paths - the implementation should naturally
    * construct the correctly sorted stream.
    */
-  def from2(initial: Stream[(Block, List[Move])],
-            explored: Set[Block]): Stream[(Block, List[Move])] = {
-    initial match {
-      case Stream.Empty => Stream.empty
-      case initialHead #:: tail => {
-        val newNeighbors = newNeighborsOnly(neighborsWithHistory(initialHead._1, initialHead._2), explored)
-        //println("from for: " + initialHead._2 + " new n: " + newNeighbors)
-        val generated = newNeighbors #::: from(tail, explored ++ (newNeighbors map (_._1)))
-        generated #::: from(generated, explored ++ (generated map (_._1)))
-      }
-    }
-  }
   def from(initial: Stream[(Block, List[Move])],
            explored: Set[Block]): Stream[(Block, List[Move])] = {
     if (initial == Stream.Empty) Stream.empty
